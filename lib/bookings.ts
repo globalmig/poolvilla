@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export type RoomType = 'standard' | 'premium' | 'family';
+export type RoomType = 'a' | 'b' | 'c';
 
 export interface Booking {
   id: string;
@@ -9,7 +9,7 @@ export interface Booking {
   phone: string;
   email: string;
   roomType: RoomType;
-  roomId: string;   // e.g. '스탠다드 201'
+  roomId: string;   // e.g. '프리미엄 201'
   checkIn: string;  // 'YYYY-MM-DD'
   checkOut: string; // 'YYYY-MM-DD'
   guests: number;
@@ -39,9 +39,9 @@ export function writeBookings(bookings: Booking[]): void {
 // ─── Individual rooms ──────────────────────────────────────────────────────────
 
 export const ROOMS_BY_TYPE: Record<RoomType, string[]> = {
-  standard: ['스탠다드 201', '스탠다드 301', '스탠다드 401'],
-  premium:  ['프리미엄 201', '프리미엄 202', '프리미엄 301', '프리미엄 302', '프리미엄 401', '프리미엄 402'],
-  family:   ['패밀리 201', '패밀리 301'],
+  a: ['프리미엄 201', '프리미엄 301', '프리미엄 401'],
+  b: ['프리미엄 202', '프리미엄 302', '프리미엄 402'],
+  c: ['스탠다드 201', '스탠다드 301', '스탠다드 401'],
 };
 
 // Map roomId → roomType
@@ -55,16 +55,16 @@ export const ALL_ROOM_IDS = Object.values(ROOMS_BY_TYPE).flat();
 
 // ─── Room metadata ─────────────────────────────────────────────────────────────
 
-export const ROOM_INFO: Record<RoomType, { name: string; size: string; maxGuests: number }> = {
-  standard: { name: '스탠다드', size: '37㎡', maxGuests: 6 },
-  premium:  { name: '프리미엄', size: '45㎡', maxGuests: 8 },
-  family:   { name: '패밀리',   size: '60㎡', maxGuests: 15 },
+export const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: string; maxGuests: number }> = {
+  a: { name: '프리미엄', typeLabel: 'A타입', size: '37평형', maxGuests: 8 },
+  b: { name: '프리미엄', typeLabel: 'B타입', size: '37평형', maxGuests: 8 },
+  c: { name: '스탠다드', typeLabel: 'C타입', size: '37평형', maxGuests: 6 },
 };
 
 export const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number }> = {
-  standard: { weekday: 200000, weekend: 300000, peak: 350000 },
-  premium:  { weekday: 280000, weekend: 380000, peak: 450000 },
-  family:   { weekday: 400000, weekend: 550000, peak: 650000 },
+  a: { weekday: 280000, weekend: 380000, peak: 450000 },
+  b: { weekday: 280000, weekend: 380000, peak: 450000 },
+  c: { weekday: 200000, weekend: 300000, peak: 350000 },
 };
 
 // ─── Pricing helpers ───────────────────────────────────────────────────────────

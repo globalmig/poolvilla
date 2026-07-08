@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import { FiX } from "react-icons/fi";
+import { FiX, FiChevronDown } from "react-icons/fi";
 import Footer from "../components/Footer";
 
 function makeImgs(folder: string, base: string, total: number): string[] {
@@ -25,9 +25,9 @@ const T_M = makeImgs("주변관광지(원산도 모빌리티)", "KakaoTalk_20260
 const T_B = makeImgs("주변관광지(원산안면대교)",    "KakaoTalk_20260702_114417167",  6);
 
 const galleryImages = [
-  ...A.map((src, i)   => ({ src, alt: `스탠다드 ${i + 1}`,    category: "room"   })),
-  ...B.map((src, i)   => ({ src, alt: `프리미엄 ${i + 1}`,    category: "room"   })),
-  ...C.map((src, i)   => ({ src, alt: `패밀리 ${i + 1}`,      category: "room"   })),
+  ...A.map((src, i)   => ({ src, alt: `A타입 ${i + 1}`,    category: "room"   })),
+  ...B.map((src, i)   => ({ src, alt: `B타입 ${i + 1}`,    category: "room"   })),
+  ...C.map((src, i)   => ({ src, alt: `C타입 ${i + 1}`,      category: "room"   })),
   ...SPA.map((src, i) => ({ src, alt: `스파풀 ${i + 1}`,      category: "facility" })),
   ...SAU.map((src, i) => ({ src, alt: `온열사우나 ${i + 1}`,  category: "facility" })),
   ...T_W.map((src, i) => ({ src, alt: `원산도해수욕장 ${i+1}`, category: "travel" })),
@@ -79,44 +79,72 @@ export default function GalleryPage() {
 
       {/* Filter tabs */}
       <section className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-14 z-40">
-        <div className="max-w-7xl mx-auto px-8 py-3 flex gap-2 overflow-x-auto">
-          {categories.map((cat) => (
-            <button
-              key={cat.key}
-              onClick={() => setActive(cat.key)}
-              className={`btn-pop shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
-                active === cat.key
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3">
+          {/* Mobile: dropdown */}
+          <div className="relative sm:hidden">
+            <select
+              value={active}
+              onChange={(e) => setActive(e.target.value)}
+              className="w-full appearance-none rounded-full pl-5 pr-10 py-2.5 text-sm font-semibold bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900/20"
             >
-              {cat.label}
-              <span className={`ml-1.5 ${active === cat.key ? "text-white/50" : "text-gray-400"}`}>
-                {cat.key === "all"
-                  ? galleryImages.length
-                  : galleryImages.filter((g) => g.category === cat.key).length}
-              </span>
-            </button>
-          ))}
+              {categories.map((cat) => (
+                <option key={cat.key} value={cat.key}>
+                  {cat.label} (
+                  {cat.key === "all"
+                    ? galleryImages.length
+                    : galleryImages.filter((g) => g.category === cat.key).length}
+                  )
+                </option>
+              ))}
+            </select>
+            <FiChevronDown
+              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
+          </div>
+
+          {/* Desktop: pill tabs */}
+          <div className="hidden sm:flex gap-2 overflow-x-auto">
+            {categories.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setActive(cat.key)}
+                className={`btn-pop shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
+                  active === cat.key
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }`}
+              >
+                {cat.label}
+                <span className={`ml-1.5 ${active === cat.key ? "text-white/50" : "text-gray-400"}`}>
+                  {cat.key === "all"
+                    ? galleryImages.length
+                    : galleryImages.filter((g) => g.category === cat.key).length}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Grid */}
-      <section className="py-12 px-8">
+      <section className="py-6 sm:py-12 px-3 sm:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+          <div
+            key={active}
+            className="fill-last-row-2-3-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4"
+          >
             {filtered.map((img, i) => (
               <div
                 key={i}
-                className="btn-pop relative overflow-hidden cursor-pointer group break-inside-avoid rounded-2xl shadow-sm hover:shadow-2xl"
+                className="btn-pop relative overflow-hidden cursor-pointer group aspect-square rounded-2xl shadow-sm hover:shadow-2xl"
                 onClick={() => setLightbox(img.src)}
               >
                 <Image
                   src={img.src}
                   alt={img.alt}
-                  width={400}
-                  height={300}
-                  className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                   unoptimized
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">

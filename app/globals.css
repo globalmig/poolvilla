@@ -49,3 +49,47 @@ body {
 }
 .btn-pop:hover { transform: translateY(-2px); }
 .btn-pop:active { transform: translateY(0) scale(0.97); }
+
+/*
+ * Gallery grids: when the item count doesn't evenly divide the column
+ * count, the last item stretches to span the leftover columns instead of
+ * leaving an empty cell in the final row. Each variant name lists the
+ * column count at each breakpoint (base / sm / md / lg).
+ */
+.fill-last-row-2-3-4 > :last-child:nth-child(2n) { grid-column: span 2; }
+
+@media (min-width: 768px) {
+  .fill-last-row-2-3-4 > :last-child:nth-child(n) { grid-column: span 1; }
+  .fill-last-row-2-3-4 > :last-child:nth-child(3n + 1) { grid-column: span 3; }
+  .fill-last-row-2-3-4 > :last-child:nth-child(3n + 2) { grid-column: span 2; }
+}
+
+@media (min-width: 1024px) {
+  .fill-last-row-2-3-4 > :last-child:nth-child(n) { grid-column: span 1; }
+  .fill-last-row-2-3-4 > :last-child:nth-child(4n + 1) { grid-column: span 4; }
+  .fill-last-row-2-3-4 > :last-child:nth-child(4n + 2) { grid-column: span 3; }
+  .fill-last-row-2-3-4 > :last-child:nth-child(4n + 3) { grid-column: span 2; }
+}
+
+.fill-last-row-2-3-4-5 > :last-child:nth-child(2n) { grid-column: span 2; }
+
+@media (min-width: 640px) {
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(n) { grid-column: span 1; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(3n + 1) { grid-column: span 3; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(3n + 2) { grid-column: span 2; }
+}
+
+@media (min-width: 768px) {
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(n) { grid-column: span 1; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(4n + 1) { grid-column: span 4; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(4n + 2) { grid-column: span 3; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(4n + 3) { grid-column: span 2; }
+}
+
+@media (min-width: 1024px) {
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(n) { grid-column: span 1; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(5n + 1) { grid-column: span 5; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(5n + 2) { grid-column: span 4; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(5n + 3) { grid-column: span 3; }
+  .fill-last-row-2-3-4-5 > :last-child:nth-child(5n + 4) { grid-column: span 2; }
+}

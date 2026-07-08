@@ -9,7 +9,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type RoomType = 'standard' | 'premium' | 'family';
+type RoomType = 'a' | 'b' | 'c';
 type Step = 'room' | 'calendar' | 'form' | 'success';
 
 interface AvailMap {
@@ -18,38 +18,47 @@ interface AvailMap {
 
 // ─── Room definitions (must match lib/bookings.ts) ────────────────────────────
 
+const ROOM_TYPES: RoomType[] = ['a', 'b', 'c'];
+
 const ROOMS_BY_TYPE: Record<RoomType, string[]> = {
-  standard: ['스탠다드 201', '스탠다드 301', '스탠다드 401'],
-  premium:  ['프리미엄 201', '프리미엄 202', '프리미엄 301', '프리미엄 302', '프리미엄 401', '프리미엄 402'],
-  family:   ['패밀리 201', '패밀리 301'],
+  a: ['프리미엄 201', '프리미엄 301', '프리미엄 401'],
+  b: ['프리미엄 202', '프리미엄 302', '프리미엄 402'],
+  c: ['스탠다드 201', '스탠다드 301', '스탠다드 401'],
 };
 
-const ROOM_INFO: Record<RoomType, { name: string; size: string; maxGuests: number }> = {
-  standard: { name: '스탠다드', size: '37㎡', maxGuests: 6 },
-  premium:  { name: '프리미엄', size: '45㎡', maxGuests: 8 },
-  family:   { name: '패밀리',   size: '60㎡', maxGuests: 15 },
+const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: string; maxGuests: number }> = {
+  a: { name: '프리미엄', typeLabel: 'A타입', size: '37평형', maxGuests: 8 },
+  b: { name: '프리미엄', typeLabel: 'B타입', size: '37평형', maxGuests: 8 },
+  c: { name: '스탠다드', typeLabel: 'C타입', size: '37평형', maxGuests: 6 },
 };
 
 const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number }> = {
-  standard: { weekday: 200000, weekend: 300000, peak: 350000 },
-  premium:  { weekday: 280000, weekend: 380000, peak: 450000 },
-  family:   { weekday: 400000, weekend: 550000, peak: 650000 },
+  a: { weekday: 280000, weekend: 380000, peak: 450000 },
+  b: { weekday: 280000, weekend: 380000, peak: 450000 },
+  c: { weekday: 200000, weekend: 300000, peak: 350000 },
 };
+
+function getRoomType(roomId: string): RoomType {
+  for (const [t, ids] of Object.entries(ROOMS_BY_TYPE)) {
+    if (ids.includes(roomId)) return t as RoomType;
+  }
+  return 'a';
+}
+
+function roomDisplay(roomId: string | null): string {
+  if (!roomId) return '';
+  const num = roomId.split(' ')[1];
+  const info = ROOM_INFO[getRoomType(roomId)];
+  return `${info.name} ${num}호 (${info.typeLabel})`;
+}
 
 // ─── Extra options ────────────────────────────────────────────────────────────
 
 interface Extra { id: string; label: string; desc: string; price: number; }
 
 const EXTRAS: Extra[] = [
-  { id: 'bbq', label: '실내 바베큐 (안방그릴)', desc: '30,000원', price: 30000 },
+  { id: 'bbq', label: '실내 바베큐 (안방 양면그릴)', desc: '20,000원', price: 20000 },
 ];
-
-function getRoomType(roomId: string): RoomType {
-  for (const [t, ids] of Object.entries(ROOMS_BY_TYPE)) {
-    if (ids.includes(roomId)) return t as RoomType;
-  }
-  return 'standard';
-}
 
 // ─── Calendar / date helpers ──────────────────────────────────────────────────
 
@@ -251,14 +260,14 @@ export default function BookingCalendar() {
 
   // ── Pricing ──
 
-  const selectedRoomType = selectedRoom ? getRoomType(selectedRoom) : null;
-  const roomInfo         = selectedRoomType ? ROOM_INFO[selectedRoomType] : null;
-  const maxGuests        = roomInfo ? roomInfo.maxGuests : 15;
+  const selectedType      = selectedRoom ? getRoomType(selectedRoom) : null;
+  const roomInfo          = selectedType ? ROOM_INFO[selectedType] : null;
+  const maxGuests         = roomInfo ? roomInfo.maxGuests : 15;
   const nights = checkIn && checkOut
     ? Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000)
     : 0;
-  const roomTotal = checkIn && checkOut && selectedRoomType
-    ? calcTotal(selectedRoomType, checkIn, checkOut)
+  const roomTotal = checkIn && checkOut && selectedType
+    ? calcTotal(selectedType, checkIn, checkOut)
     : 0;
   const total = roomTotal + extrasTotal;
 
@@ -314,7 +323,7 @@ export default function BookingCalendar() {
         <p className="text-gray-500 mb-2">입력하신 연락처로 예약 확정 안내를 드릴 예정입니다.</p>
         <p className="text-sm text-gray-400 mb-8">예약금(총 금액의 30%) 입금 후 예약이 확정됩니다.</p>
         <div className="rounded-3xl bg-[#FAFAF9] p-6 text-left mb-8 text-sm text-gray-600 space-y-1.5">
-          <div><span className="font-semibold text-gray-800">객실:</span> {selectedRoom}</div>
+          <div><span className="font-semibold text-gray-800">객실:</span> {roomDisplay(selectedRoom)}</div>
           <div><span className="font-semibold text-gray-800">체크인:</span> {fmtKR(fmt(checkIn!))}</div>
           <div><span className="font-semibold text-gray-800">체크아웃:</span> {fmtKR(fmt(checkOut!))}</div>
           {selectedExtras.size > 0 && (
@@ -347,19 +356,18 @@ export default function BookingCalendar() {
         </h3>
 
         <div className="space-y-8">
-          {(Object.keys(ROOMS_BY_TYPE) as RoomType[]).map(type => {
+          {ROOM_TYPES.map(type => {
             const info   = ROOM_INFO[type];
             const rooms  = ROOMS_BY_TYPE[type];
             const prices = ROOM_PRICES[type];
             return (
               <div key={type}>
-                <div className="flex items-baseline justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-gray-900">{info.name}</span>
-                    <span className="text-sm text-gray-400">{info.size} · 최대 {info.maxGuests}인</span>
-                  </div>
+                <div className="flex items-baseline justify-between mb-3 flex-wrap gap-1">
+                  <span className="text-base font-bold text-gray-900">
+                    {info.name} <span className="text-gray-400 font-normal text-sm">({info.typeLabel})</span>
+                  </span>
                   <span className="text-sm text-gray-400">
-                    평일 {(prices.weekday / 10000).toFixed(0)}만 ~
+                    {info.size} · 최대 {info.maxGuests}인 · 평일 {(prices.weekday / 10000).toFixed(0)}만 ~
                   </span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -401,7 +409,7 @@ export default function BookingCalendar() {
         <div className="rounded-3xl bg-[#1C2B3A] text-white p-6 mb-8 shadow-sm">
           <p className="text-[#2A8EA2] text-xs font-semibold tracking-wide uppercase mb-3">예약 요약</p>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div><span className="text-white/50">객실</span><br /><strong>{selectedRoom}</strong></div>
+            <div><span className="text-white/50">객실</span><br /><strong>{roomDisplay(selectedRoom)}</strong></div>
             <div><span className="text-white/50">인원</span><br /><strong>{form.guests}명</strong></div>
             <div><span className="text-white/50">체크인</span><br /><strong>{fmtKR(fmt(checkIn!))}</strong></div>
             <div><span className="text-white/50">체크아웃</span><br /><strong>{fmtKR(fmt(checkOut!))}</strong></div>
@@ -680,7 +688,7 @@ export default function BookingCalendar() {
         {/* ── Left: Calendar ─────────────────────────────────────────────────── */}
         <div>
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-            날짜 선택 <span className="normal-case font-normal text-gray-400">· {selectedRoom}</span>
+            날짜 선택 <span className="normal-case font-normal text-gray-400">· {roomDisplay(selectedRoom)}</span>
           </h3>
 
           {/* Month nav */}
@@ -779,11 +787,8 @@ export default function BookingCalendar() {
           <div className="rounded-2xl bg-[#FAFAF9] p-5">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">선택한 객실</p>
             <p className="text-base font-bold text-gray-900 flex items-center gap-1.5">
-              <FiCheck className="text-[#2A8EA2]" /> {selectedRoom}
+              <FiCheck className="text-[#2A8EA2]" /> {roomDisplay(selectedRoom)}
             </p>
-            {roomInfo && (
-              <p className="text-xs text-gray-400 mt-1">{roomInfo.size} · 최대 {roomInfo.maxGuests}인</p>
-            )}
           </div>
 
           {/* Booking summary + CTA */}
@@ -817,17 +822,25 @@ export default function BookingCalendar() {
           )}
 
           {/* Price quick ref for this room type */}
-          {selectedRoomType && (
+          {selectedType && (
             <div className="text-xs text-gray-500 space-y-1.5 rounded-2xl bg-[#FAFAF9] p-4">
-              <p className="font-semibold text-gray-700 mb-2">{ROOM_INFO[selectedRoomType].name} 요금</p>
+              <p className="font-semibold text-gray-700 mb-2">
+                {ROOM_INFO[selectedType].name} ({ROOM_INFO[selectedType].typeLabel}) 요금
+              </p>
               <div className="flex justify-between">
-                <span>평일</span><span className="text-gray-400">{krw(ROOM_PRICES[selectedRoomType].weekday)}</span>
+                <span>평형</span><span className="text-gray-400">{ROOM_INFO[selectedType].size}</span>
               </div>
               <div className="flex justify-between">
-                <span>주말</span><span className="text-gray-400">{krw(ROOM_PRICES[selectedRoomType].weekend)}</span>
+                <span>기준 인원</span><span className="text-gray-400">최대 {ROOM_INFO[selectedType].maxGuests}인</span>
               </div>
               <div className="flex justify-between">
-                <span>성수기</span><span className="text-gray-400">{krw(ROOM_PRICES[selectedRoomType].peak)}</span>
+                <span>평일</span><span className="text-gray-400">{krw(ROOM_PRICES[selectedType].weekday)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>주말</span><span className="text-gray-400">{krw(ROOM_PRICES[selectedType].weekend)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>성수기</span><span className="text-gray-400">{krw(ROOM_PRICES[selectedType].peak)}</span>
               </div>
               <p className="pt-1 text-gray-400">· 체크인 15:00 / 체크아웃 11:00</p>
               <p className="text-gray-400">· 예약금(30%) 입금 후 확정</p>

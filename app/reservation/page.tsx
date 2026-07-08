@@ -5,30 +5,21 @@ import { FiCheck, FiArrowRight } from "react-icons/fi";
 
 const pricingData = [
   {
-    type: "스탠다드",
-    typeEn: "Standard",
-    size: "37평형",
-    guests: "최대 6인",
+    type: "A타입",
     weekday: "200,000",
     weekend: "300,000",
     peak: "350,000",
     highlight: false,
   },
   {
-    type: "프리미엄",
-    typeEn: "Premium",
-    size: "45평형",
-    guests: "최대 8인",
+    type: "B타입",
     weekday: "280,000",
     weekend: "380,000",
     peak: "430,000",
     highlight: true,
   },
   {
-    type: "패밀리",
-    typeEn: "Family",
-    size: "60평형",
-    guests: "최대 15인",
+    type: "C타입",
     weekday: "400,000",
     weekend: "550,000",
     peak: "650,000",
@@ -92,20 +83,19 @@ export default function ReservationPage() {
             {pricingData.map((p) => (
               <div
                 key={p.type}
-                className={`btn-pop rounded-3xl shadow-sm hover:shadow-2xl transition-shadow duration-500 ${
-                  p.highlight ? "bg-[#111] text-white" : "bg-[#FAFAF9]"
+                className={`btn-pop relative rounded-3xl shadow-sm hover:shadow-2xl transition-shadow duration-500 ${
+                  p.highlight ? "bg-white border-2 border-[#2A8EA2]" : "bg-[#FAFAF9] border-2 border-transparent"
                 }`}
               >
+                {p.highlight && (
+                  <span className="absolute -top-3 left-8 rounded-full bg-[#2A8EA2] text-white text-xs font-semibold px-3 py-1">
+                    인기
+                  </span>
+                )}
                 <div className="p-8">
-                  <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-1.5">
-                    {p.typeEn}
-                  </p>
-                  <h3 className={`text-lg font-bold mb-1 ${p.highlight ? "text-white" : "text-gray-900"}`}>
+                  <h3 className="text-lg font-bold mb-8 text-gray-900">
                     {p.type}
                   </h3>
-                  <p className={`text-sm mb-8 ${p.highlight ? "text-white/35" : "text-gray-400"}`}>
-                    {p.size} · {p.guests}
-                  </p>
 
                   <div className="space-y-3">
                     {[
@@ -113,19 +103,19 @@ export default function ReservationPage() {
                       { label: "주말 (금·토)", value: p.weekend },
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between items-baseline">
-                        <span className={`text-sm ${p.highlight ? "text-white/40" : "text-gray-400"}`}>
+                        <span className="text-sm text-gray-400">
                           {item.label}
                         </span>
-                        <span className={`text-sm font-semibold ${p.highlight ? "text-white/70" : "text-gray-700"}`}>
+                        <span className="text-sm font-semibold text-gray-700">
                           {item.value}원
                         </span>
                       </div>
                     ))}
-                    <div className={`border-t pt-3 flex justify-between items-baseline ${p.highlight ? "border-white/10" : "border-gray-200"}`}>
-                      <span className={`text-sm ${p.highlight ? "text-white/40" : "text-gray-400"}`}>
+                    <div className="border-t border-gray-200 pt-3 flex justify-between items-baseline">
+                      <span className="text-sm text-gray-400">
                         성수기
                       </span>
-                      <span className={`text-base ${p.highlight ? "text-[#2A8EA2]" : "text-gray-900"} font-bold`}>
+                      <span className={`text-base font-bold ${p.highlight ? "text-[#2A8EA2]" : "text-gray-900"}`}>
                         {p.peak}원
                       </span>
                     </div>
@@ -177,7 +167,7 @@ export default function ReservationPage() {
       </section>
 
       {/* Cancellation */}
-      <section className="py-20 px-8">
+      <section className="py-20 px-4 sm:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <span className="inline-flex items-center rounded-full bg-[#2A8EA2]/10 px-3.5 py-1.5 text-xs font-semibold text-[#1E7A8D] mb-4">
@@ -188,26 +178,26 @@ export default function ReservationPage() {
             </h2>
           </div>
           <div className="rounded-3xl overflow-hidden shadow-sm">
-            <div className="grid grid-cols-2 bg-[#FAFAF9]">
-              <div className="px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">취소 시점</div>
-              <div className="px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">환불 금액</div>
+            <div className="grid grid-cols-[1.2fr_1fr] bg-[#FAFAF9]">
+              <div className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">취소 시점</div>
+              <div className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">환불 금액</div>
             </div>
             {cancelPolicy.map((item, i) => (
               <div
                 key={i}
-                className={`grid grid-cols-2 border-t border-gray-100 ${
+                className={`grid grid-cols-[1.2fr_1fr] border-t border-gray-100 ${
                   item.refund === "환불 불가" ? "bg-red-50/40" : "bg-white"
                 }`}
               >
-                <div className="px-6 py-4 text-sm text-gray-600">{item.timing}</div>
-                <div className={`px-6 py-4 text-sm font-medium flex items-center gap-2 ${
+                <div className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">{item.timing}</div>
+                <div className={`px-4 sm:px-6 py-4 text-xs sm:text-sm font-medium flex items-center gap-1.5 whitespace-nowrap ${
                   item.refund === "환불 불가"
                     ? "text-red-500"
                     : item.safe
                     ? "text-green-600"
                     : "text-gray-700"
                 }`}>
-                  {item.safe && <FiCheck size={13} />}
+                  {item.safe && <FiCheck size={13} className="shrink-0" />}
                   {item.refund}
                 </div>
               </div>
@@ -221,7 +211,7 @@ export default function ReservationPage() {
 
       {/* CTA */}
       <section className="py-16 px-8">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-[#FAFAF9] p-10">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-[#FAFAF9] p-6 sm:p-10 text-center md:text-left">
           <div>
             <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-2">
               Ready to Book?
@@ -230,7 +220,7 @@ export default function ReservationPage() {
           </div>
           <Link
             href="/booking"
-            className="btn-pop text-sm font-semibold rounded-full px-8 py-3.5 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow"
+            className="btn-pop text-sm font-semibold rounded-full px-8 py-3.5 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow whitespace-nowrap text-center w-full sm:w-auto"
           >
             실시간예약
           </Link>

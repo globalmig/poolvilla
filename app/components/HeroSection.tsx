@@ -1,6 +1,6 @@
 ﻿"use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
 
@@ -14,6 +14,7 @@ const heroImages = [
 
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const t = setInterval(
@@ -23,26 +24,85 @@ export default function HeroSection() {
     return () => clearInterval(t);
   }, []);
 
+  // Drag-to-swipe: only advances the slide while the mouse button is held
+  // down and dragged. Pointer capture guarantees drag-end fires even if the
+  // cursor leaves the section before the button is released.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const SWIPE_THRESHOLD = 80; // px of cumulative drag movement to advance a slide
+    let accumX = 0;
+    let dragging = false;
+    let pointerId: number | null = null;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      dragging = true;
+      accumX = 0;
+      pointerId = e.pointerId;
+      section.setPointerCapture(e.pointerId);
+      section.style.cursor = "grabbing";
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      accumX += e.movementX;
+      if (accumX > SWIPE_THRESHOLD) {
+        setCurrent((p) => (p + 1) % heroImages.length);
+        accumX = 0;
+      } else if (accumX < -SWIPE_THRESHOLD) {
+        setCurrent((p) => (p - 1 + heroImages.length) % heroImages.length);
+        accumX = 0;
+      }
+    };
+
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      accumX = 0;
+      if (pointerId !== null) {
+        try { section.releasePointerCapture(pointerId); } catch { /* already released */ }
+      }
+      pointerId = null;
+      section.style.cursor = "grab";
+    };
+
+    section.style.cursor = "grab";
+    section.addEventListener("pointerdown", handlePointerDown);
+    section.addEventListener("pointermove", handlePointerMove);
+    section.addEventListener("pointerup", endDrag);
+    section.addEventListener("pointercancel", endDrag);
+    return () => {
+      section.removeEventListener("pointerdown", handlePointerDown);
+      section.removeEventListener("pointermove", handlePointerMove);
+      section.removeEventListener("pointerup", endDrag);
+      section.removeEventListener("pointercancel", endDrag);
+    };
+  }, []);
+
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden select-none">
       {/* Image slideshow */}
-      {heroImages.map((src, idx) => (
-        <div
-          key={idx}
-          className={`absolute inset-0 transition-opacity duration-2000 ${
-            idx === current ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <Image
-            src={src}
-            alt={`원산도풀빌라 ${idx + 1}`}
-            fill
-            className="object-cover"
-            priority={idx === 0}
-            unoptimized
-          />
-        </div>
-      ))}
+      <div className="absolute inset-0 scale-105">
+        {heroImages.map((src, idx) => (
+          <div
+            key={idx}
+            className={`absolute inset-0 transition-opacity duration-2000 ${
+              idx === current ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={src}
+              alt={`원산도풀빌라 ${idx + 1}`}
+              fill
+              className="object-cover"
+              priority={idx === 0}
+              unoptimized
+              draggable={false}
+            />
+          </div>
+        ))}
+      </div>
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />

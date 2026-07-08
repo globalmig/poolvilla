@@ -12,8 +12,8 @@ interface Booking {
   guestName: string;
   phone: string;
   email: string;
-  roomType: 'standard' | 'premium' | 'family';
-  roomId: string;   // e.g. '스탠다드 201'
+  roomType: 'a' | 'b' | 'c';
+  roomId: string;   // e.g. '프리미엄 201'
   checkIn: string;
   checkOut: string;
   guests: number;
@@ -26,9 +26,9 @@ interface Booking {
 type Filter = 'all' | 'pending' | 'confirmed' | 'cancelled';
 
 const ROOM_LABELS: Record<string, string> = {
-  standard: '스탠다드',
-  premium: '프리미엄',
-  family: '패밀리',
+  a: '프리미엄 (A타입)',
+  b: '프리미엄 (B타입)',
+  c: '스탠다드 (C타입)',
 };
 
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {

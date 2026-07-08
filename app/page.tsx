@@ -34,27 +34,24 @@ const showcaseImgs = [
 
 const roomTypes = [
   {
-    slug: "standard",
-    name: "스탠다드",
-    nameEn: "Standard",
-    desc: "37평형 · 최대 6인",
+    slug: "a",
+    name: "프리미엄 A타입",
+    desc: "37평형 · 최대 8인",
     sub: "더블침대 · 실내온수수영장 · 스파 · 사우나",
     image: A[0],
   },
   {
-    slug: "premium",
-    name: "프리미엄",
-    nameEn: "Premium",
+    slug: "b",
+    name: "프리미엄 B타입",
     desc: "37평형 · 최대 8인",
     sub: "더블침대 · 실내온수수영장 · 스파 · 사우나",
     image: B[0],
   },
   {
-    slug: "family",
-    name: "패밀리",
-    nameEn: "Family",
-    desc: "55평형 · 최대 15인",
-    sub: "침실 2개 · 실내온수수영장 · 스파 · 사우나",
+    slug: "c",
+    name: "스탠다드 C타입",
+    desc: "37평형 · 최대 6인",
+    sub: "더블침대 · 실내온수수영장 · 스파 · 사우나",
     image: C[0],
   },
 ];
@@ -63,7 +60,7 @@ const facilities = [
   { name: "실내 온수수영장",  image: SPA[1]  },
   { name: "스파",            image: SPA[4]  },
   { name: "온열 사우나",      image: SAU[0]  },
-  { name: "실내 바베큐 그릴", image: A[3]   },
+  { name: "실내 바베큐 그릴", image: "/grill.jpg", paid: true },
 ];
 
 const travels = [
@@ -140,12 +137,7 @@ export default function HomePage() {
                 </div>
                 <div className="p-7">
                   <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-1.5">
-                        {room.nameEn}
-                      </p>
-                      <h3 className="text-xl font-bold text-gray-900">{room.name}</h3>
-                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">{room.name}</h3>
                     <span className="w-9 h-9 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center group-hover:bg-gray-900 group-hover:text-white transition-colors duration-300">
                       →
                     </span>
@@ -179,8 +171,13 @@ export default function HomePage() {
                   unoptimized
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/5 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="absolute bottom-0 left-0 right-0 p-5 flex items-center gap-2">
                   <p className="text-white text-base font-semibold">{f.name}</p>
+                  {f.paid && (
+                    <span className="rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-[11px] font-semibold text-white">
+                      유료
+                    </span>
+                  )}
                 </div>
               </Link>
             ))}
@@ -265,6 +262,8 @@ export default function HomePage() {
               갤러리 전체보기 →
             </Link>
           </div>
+          {/* First tile spans 2x2, leaving one empty cell in the last row at both
+              2-col and 4-col widths — the last tile spans 2 columns to fill it. */}
           <div className="grid grid-cols-2 md:grid-cols-4 md:auto-rows-[184px] gap-3 md:gap-4">
             {showcaseImgs.map((src, i) => (
               <Link
@@ -273,6 +272,8 @@ export default function HomePage() {
                 className={`btn-pop group relative overflow-hidden rounded-3xl shadow-sm hover:shadow-2xl transition-shadow duration-500 ${
                   i === 0
                     ? "col-span-2 aspect-video md:aspect-auto md:row-span-2"
+                    : i === showcaseImgs.length - 1
+                    ? "col-span-2 aspect-video md:aspect-auto"
                     : "col-span-1 aspect-square md:aspect-auto"
                 }`}
               >

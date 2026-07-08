@@ -17,30 +17,30 @@ const C_IMGS = makeImgs("객실(C-type)", "KakaoTalk_20260702_114144440", 10);
 
 const rooms = [
   {
-    slug: "standard",
-    label: "스탠다드",
-    labelEn: "Standard · A-type",
-    size: "37평형 (약 122m²)",
-    guests: "기준 2인 / 최대 6인",
+    slug: "a",
+    label: "프리미엄",
+    typeLabel: "A타입",
+    size: "37평형",
+    maxGuests: 8,
     units: "201 · 301 · 401",
     cardImage: A_IMGS[0],
   },
   {
-    slug: "premium",
+    slug: "b",
     label: "프리미엄",
-    labelEn: "Premium · B-type",
-    size: "37평형 (약 122m²)",
-    guests: "기준 2인 / 최대 8인",
-    units: "201 · 202 · 301 · 302 · 401 · 402",
+    typeLabel: "B타입",
+    size: "37평형",
+    maxGuests: 8,
+    units: "202 · 302 · 402",
     cardImage: B_IMGS[0],
   },
   {
-    slug: "family",
-    label: "패밀리",
-    labelEn: "Family · C-type",
-    size: "55평형 (약 182m²)",
-    guests: "기준 2인 / 최대 15인",
-    units: "201 · 301",
+    slug: "c",
+    label: "스탠다드",
+    typeLabel: "C타입",
+    size: "37평형",
+    maxGuests: 6,
+    units: "201 · 301 · 401",
     cardImage: C_IMGS[0],
   },
 ];
@@ -88,13 +88,12 @@ export default function RoomsPage() {
                 </div>
                 <div className="p-8">
                   <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-1.5">
-                    {room.labelEn}
+                    {room.typeLabel}
                   </p>
                   <h2 className="text-xl font-bold text-gray-900 mb-4">{room.label}</h2>
                   <div className="space-y-1.5 mb-5">
-                    <p className="text-sm text-gray-500">{room.size}</p>
-                    <p className="text-sm text-gray-500">{room.guests}</p>
-                    <p className="text-sm text-gray-400">{room.units}</p>
+                    <p className="text-sm text-gray-500">{room.size} · 최대 {room.maxGuests}인</p>
+                    <p className="text-sm text-gray-400">{room.units}호</p>
                   </div>
                   <span className="text-sm font-semibold text-[#2A8EA2]">
                     자세히 보기 →
@@ -108,21 +107,21 @@ export default function RoomsPage() {
 
       {/* CTA */}
       <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-[#FAFAF9] p-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-[#FAFAF9] p-6 sm:p-10 text-center md:text-left">
           <div>
             <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-2">Reservation</p>
             <p className="text-xl font-bold text-gray-900">지금 바로 예약하세요</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Link
               href="/booking"
-              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow"
+              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow whitespace-nowrap text-center"
             >
               실시간예약
             </Link>
             <Link
               href="/reservation"
-              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-white border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors"
+              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-white border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors whitespace-nowrap text-center"
             >
               예약안내
             </Link>

@@ -8,7 +8,6 @@ import {
   FiMonitor,
   FiWind,
   FiPackage,
-  FiZap,
   FiCoffee,
   FiMapPin,
   FiWifi,
@@ -39,7 +38,6 @@ const amenities = [
   { icon: FiMonitor, name: "스마트TV" },
   { icon: FiWind, name: "에어컨 / 냉장고" },
   { icon: FiPackage, name: "어메니티 (샴푸·바디워시·드라이어)" },
-  { icon: FiZap, name: "바베큐 그릴 (무료)" },
   { icon: FiCoffee, name: "커피머신 / 전기포트" },
   { icon: FiMapPin, name: "무료 주차" },
   { icon: FiWifi, name: "무선 인터넷 (WiFi)" },
@@ -64,7 +62,7 @@ const faq = [
   },
   {
     q: "바베큐는 어떻게 이용하나요?",
-    a: "기본 바베큐 그릴은 무료로 제공됩니다. 실내 안방그릴은 유료이며, 예약 시 별도 요청하시면 됩니다. 숯과 착화제는 체크인 시 별도 구매 가능합니다.",
+    a: "기본 바베큐 그릴은 무료로 제공됩니다. 실내 안방 양면그릴은 대여료 20,000원이며, 예약 시 별도 요청하시면 됩니다. 숯과 착화제는 체크인 시 별도 구매 가능합니다.",
   },
 ];
 

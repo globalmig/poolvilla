@@ -14,6 +14,7 @@ function makeImgs(folder: string, base: string, total: number): string[] {
 
 const SPA_IMGS  = makeImgs("스파풀(A,B,C공통)",   "KakaoTalk_20260702_113804103", 13);
 const SAUNA_IMGS = makeImgs("온열사우나(A,B,C공통)", "KakaoTalk_20260702_113835181",  8);
+const GRILL_IMGS = ["/grill.jpg", "/grill02.jpg"];
 
 const facilities = [
   {
@@ -41,6 +42,18 @@ const facilities = [
       "24시간 이용 가능",
     ],
     images: SAUNA_IMGS,
+  },
+  {
+    id: "bbq-grill",
+    name: "실내 바베큐 (안방 양면그릴)",
+    nameEn: "Indoor BBQ Grill",
+    desc: "객실 안에서 프라이빗하게 즐기는 양면 그릴 바베큐입니다. 가족·연인과 함께 편안하게 고기와 해산물을 구워 드실 수 있어, 날씨 걱정 없이 실내에서 여유로운 바베큐 타임을 즐기실 수 있습니다.",
+    details: [
+      "양면 그릴 대여료: 20,000원 (1박 기준)",
+      "예약 시 사전 요청 필요",
+      "숯·착화제는 체크인 시 별도 구매 가능",
+    ],
+    images: GRILL_IMGS,
   },
 ];
 
@@ -124,8 +137,8 @@ export default function SpecialPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "실내 바베큐", sub: "안방그릴 · 30,000원" },
               { label: "주방 · 거실", sub: "전 객실 완비" },
+              { label: "안전용품", sub: "튜브 · 구명조끼" },
               { label: "WiFi", sub: "전 객실 무료" },
               { label: "주차", sub: "무료 주차 가능" },
             ].map(({ label, sub }) => (
@@ -140,18 +153,18 @@ export default function SpecialPage() {
 
       {/* CTA */}
       <section className="py-16 px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-[#FAFAF9] p-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-[#FAFAF9] p-6 sm:p-10 text-center md:text-left">
           <div>
             <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-2">Reservation</p>
             <p className="text-xl font-bold text-gray-900">프라이빗 풀빌라를 예약하세요</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Link href="/booking"
-              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow">
+              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow whitespace-nowrap text-center">
               실시간예약
             </Link>
             <Link href="/rooms"
-              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-white border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors">
+              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-white border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors whitespace-nowrap text-center">
               객실 보기
             </Link>
           </div>
