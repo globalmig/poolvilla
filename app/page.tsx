@@ -143,7 +143,7 @@ export default function HomePage() {
         <Image src={SPA[11]} alt="서해스파풀빌라" fill className="object-cover brightness-110 saturate-[1.1]" unoptimized />
         <div className="absolute inset-0 bg-black/15" />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-8 [text-shadow:0_2px_16px_rgba(0,0,0,0.6),0_1px_3px_rgba(0,0,0,0.5)]">
-          <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold mb-6 text-white/90">Exclusive Pool Villa</span>
+          <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold mb-6 text-white/90">Exclusive Spa Pool Villa</span>
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-8 leading-tight">
             오직 당신만을 위한
             <br />

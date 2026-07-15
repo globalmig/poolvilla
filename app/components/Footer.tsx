@@ -17,7 +17,11 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <p className="text-lg font-bold tracking-tight mb-4">서해스파풀빌라</p>
+            <p className="text-lg font-bold tracking-tight mb-4">참좋은 원산도</p>
+            <p className="text-sm text-white/40 leading-relaxed">대표자: 김영민</p>
+            <p className="text-sm text-white/40 leading-relaxed mb-6">이메일: elect9@naver.com</p>
+            <p className="text-sm text-white/40 leading-relaxed">사업자등록번호: 859-64-00651</p>
+
             <p className="text-sm text-white/40 leading-relaxed mb-6">
               충남 보령시 오천면 원산도 4길 39-23
               <br />
@@ -25,16 +29,16 @@ export default function Footer() {
             </p>
 
             <p className="text-sm text-white/40 leading-relaxed mb-6">
-              <span className="font-semibold text-white/60">문의</span> 041-932-3923
+              <span className="font-semibold text-white/60">문의</span>
             </p>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
               <a href="#" aria-label="Instagram" className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 text-white/60 hover:bg-white hover:text-gray-900 transition-colors">
                 <FiInstagram size={16} />
               </a>
               <a href="#" aria-label="YouTube" className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 text-white/60 hover:bg-white hover:text-gray-900 transition-colors">
                 <FiYoutube size={16} />
               </a>
-            </div>
+            </div> */}
           </div>
 
           {/* Links */}
