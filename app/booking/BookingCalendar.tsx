@@ -28,10 +28,10 @@ const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: strin
   c: { name: "스탠다드", typeLabel: "C타입", size: "37평형", maxGuests: 6 },
 };
 
-const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number }> = {
-  a: { weekday: 280000, weekend: 380000, peak: 450000 },
-  b: { weekday: 280000, weekend: 380000, peak: 450000 },
-  c: { weekday: 200000, weekend: 300000, peak: 350000 },
+const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number; normal: number }> = {
+  a: { weekday: 342000, weekend: 399000, peak: 399000, normal: 570000 },
+  b: { weekday: 342000, weekend: 399000, peak: 399000, normal: 570000 },
+  c: { weekday: 316000, weekend: 369000, peak: 369000, normal: 528000 },
 };
 
 function getRoomType(roomId: string): RoomType {
@@ -929,6 +929,10 @@ export default function BookingCalendar() {
               <div className="flex justify-between">
                 <span>성수기</span>
                 <span className="text-gray-400">{krw(ROOM_PRICES[selectedType].peak)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>정상가</span>
+                <span className="text-gray-400">{krw(ROOM_PRICES[selectedType].normal)}</span>
               </div>
               <p className="pt-1 text-gray-400">· 체크인 15:00 / 체크아웃 11:00</p>
               <p className="text-gray-400">· 100% 입금 후 확정</p>

@@ -20,6 +20,7 @@ const T_M = makeImgs("주변관광지(원산도 모빌리티)", "KakaoTalk_20260
 const T_B = makeImgs("주변관광지(원산안면대교)", "KakaoTalk_20260702_114417167", 6);
 const T_C = makeImgs("주변관광지(바이더오카페)", "KakaoTalk_20260713_151425396", 4);
 const T_D = makeImgs("주변관광지(영목항전망대)", "KakaoTalk_20260713_151113650", 6);
+const OUT = makeImgs("외관", "KakaoTalk_20260715_182900342", 2);
 
 const galleryImages = [
   ...A.map((src, i) => ({ src, alt: `A타입 ${i + 1}`, category: "room" })),
@@ -34,6 +35,7 @@ const galleryImages = [
   ...T_B.map((src, i) => ({ src, alt: `원산안면대교 ${i + 1}`, category: "travel" })),
   ...T_C.map((src, i) => ({ src, alt: `바이더오카페 ${i + 1}`, category: "travel" })),
   ...T_D.map((src, i) => ({ src, alt: `영목항전망대 ${i + 1}`, category: "travel" })),
+  ...OUT.map((src, i) => ({ src, alt: `외관 ${i + 1}`, category: "facility" })),
 ];
 
 const categories = [

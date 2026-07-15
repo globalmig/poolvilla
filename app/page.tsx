@@ -54,7 +54,7 @@ const facilities = [
   { name: "온탕 스파", image: SPA[10] },
   { name: "온열 사우나", image: SAU[0] },
   { name: "실내 바베큐 그릴", image: "/grill.jpg", paid: true },
-  { name: "실외 바베큐", image: "/grill.jpg", paid: true },
+  { name: "실외 바베큐", image: "/grill_out.jpg", paid: true },
 ];
 
 const travels = [

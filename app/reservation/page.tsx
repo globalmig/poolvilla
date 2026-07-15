@@ -6,23 +6,26 @@ import { FiCheck, FiArrowRight } from "react-icons/fi";
 const pricingData = [
   {
     type: "A타입",
-    weekday: "200,000",
-    weekend: "300,000",
-    peak: "350,000",
+    weekday: "342,000원 (오픈기념40%세일)",
+    weekend: "399,000원 (오픈기념30%세일)",
+    peak: "399,000원 (오픈기념30%세일)",
+    normal: "570,000원",
     highlight: false,
   },
   {
     type: "B타입",
-    weekday: "280,000",
-    weekend: "380,000",
-    peak: "430,000",
+    weekday: "342,000원 (오픈기념40%세일)",
+    weekend: "399,000원 (오픈기념30%세일)",
+    peak: "399,000원 (오픈기념30%세일)",
+    normal: "570,000원",
     highlight: true,
   },
   {
     type: "C타입",
-    weekday: "400,000",
-    weekend: "550,000",
-    peak: "650,000",
+    weekday: "316,000원 (오픈기념40%세일)",
+    weekend: "369,000원 (오픈기념30%세일)",
+    peak: "369,000원 (오픈기념30%세일)",
+    normal: "528,000원",
     highlight: false,
   },
 ];
@@ -83,12 +86,17 @@ export default function ReservationPage() {
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between items-baseline">
                         <span className="text-sm text-gray-400">{item.label}</span>
-                        <span className="text-sm font-semibold text-gray-700">{item.value}원</span>
+                        <span className="text-sm font-semibold text-gray-700">{item.value}</span>
                       </div>
                     ))}
                     <div className="border-t border-gray-200 pt-3 flex justify-between items-baseline">
                       <span className="text-sm text-gray-400">성수기</span>
-                      <span className={`text-base font-bold ${p.highlight ? "text-[#2A8EA2]" : "text-gray-900"}`}>{p.peak}원</span>
+                      <span className={`text-base font-bold ${p.highlight ? "text-[#2A8EA2]" : "text-gray-900"}`}>{p.peak}</span>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-3 flex justify-between items-baseline">
+                      <span className="text-sm text-gray-400">정상가</span>
+                      <span className={`text-base font-bold`}>{p.normal}</span>
                     </div>
                   </div>
 
