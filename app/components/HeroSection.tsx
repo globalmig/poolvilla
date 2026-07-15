@@ -17,10 +17,7 @@ export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const t = setInterval(
-      () => setCurrent((p) => (p + 1) % heroImages.length),
-      5000
-    );
+    const t = setInterval(() => setCurrent((p) => (p + 1) % heroImages.length), 5000);
     return () => clearInterval(t);
   }, []);
 
@@ -61,7 +58,11 @@ export default function HeroSection() {
       dragging = false;
       accumX = 0;
       if (pointerId !== null) {
-        try { section.releasePointerCapture(pointerId); } catch { /* already released */ }
+        try {
+          section.releasePointerCapture(pointerId);
+        } catch {
+          /* already released */
+        }
       }
       pointerId = null;
       section.style.cursor = "grab";
@@ -85,49 +86,31 @@ export default function HeroSection() {
       {/* Image slideshow */}
       <div className="absolute inset-0 scale-105">
         {heroImages.map((src, idx) => (
-          <div
-            key={idx}
-            className={`absolute inset-0 transition-opacity duration-2000 ${
-              idx === current ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Image
-              src={src}
-              alt={`원산도풀빌라 ${idx + 1}`}
-              fill
-              className="object-cover"
-              priority={idx === 0}
-              unoptimized
-              draggable={false}
-            />
+          <div key={idx} className={`absolute inset-0 transition-opacity duration-2000 ${idx === current ? "opacity-100" : "opacity-0"}`}>
+            <Image src={src} alt={`서해스파풀빌라 ${idx + 1}`} fill className="object-cover brightness-110 saturate-[1.15]" priority={idx === 0} unoptimized draggable={false} />
           </div>
         ))}
       </div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Overlay — kept light so the photo stays bright; text legibility comes from the shadow below */}
+      <div className="absolute inset-0 bg-black/10" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
-        <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-xs md:text-sm font-semibold mb-7 text-white/90">
-          Boryeong · Wonsando · Pool Villa
-        </span>
-        <h1 className="text-[2.6rem] md:text-[4.5rem] lg:text-[5.5rem] font-bold tracking-tight leading-[0.95] mb-5">
-          원산도의 특별한 쉼
-        </h1>
-        <p className="text-base md:text-lg font-medium mb-10 text-white/75">
-          프라이빗 풀빌라 &nbsp;·&nbsp; 실내 온수수영장 &nbsp;·&nbsp; 스파&nbsp;&amp;&nbsp;사우나
-        </p>
+      <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.65),0_1px_4px_rgba(0,0,0,0.5)]">
+        <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-5 py-2 text-sm md:text-base font-semibold mb-8 text-white/95">Boryeong Seohae Spa Pool Villa</span>
+        <h1 className="text-[3.2rem] md:text-[5.5rem] lg:text-[6.5rem] font-bold tracking-tight leading-[0.95] mb-6">서해스파풀빌라</h1>
+        <p className="text-lg md:text-2xl font-medium mb-10 text-white/90">프라이빗 풀빌라 &nbsp;·&nbsp; 실내 스위밍 스파 &nbsp;·&nbsp; 온열 사우나</p>
         <div className="flex items-center gap-4">
           <Link
             href="/rooms"
-            className="btn-pop rounded-full text-sm md:text-base px-7 py-3.5 bg-white/15 backdrop-blur-sm border border-white/30 text-white font-semibold hover:bg-white hover:text-gray-900 transition-colors duration-300"
+            className="btn-pop rounded-full text-base md:text-lg px-8 py-4 bg-white/15 backdrop-blur-sm border border-white/30 text-white font-semibold hover:bg-white hover:text-gray-900 transition-colors duration-300"
           >
             객실 보기
           </Link>
           <Link
             href="/booking"
-            className="btn-pop rounded-full text-sm md:text-base px-7 py-3.5 font-semibold shadow-lg transition-colors duration-300"
+            className="btn-pop rounded-full text-base md:text-lg px-8 py-4 font-semibold shadow-lg transition-colors duration-300"
             style={{ backgroundColor: "#2A8EA2", color: "#fff" }}
           >
             예약하기
@@ -146,9 +129,7 @@ export default function HeroSection() {
           <button
             key={idx}
             onClick={() => setCurrent(idx)}
-            className={`h-2 rounded-full transition-all duration-500 ${
-              idx === current ? "w-7 bg-white" : "w-2 bg-white/40"
-            }`}
+            className={`h-2 rounded-full transition-all duration-500 ${idx === current ? "w-7 bg-white" : "w-2 bg-white/40"}`}
             aria-label={`슬라이드 ${idx + 1}`}
           />
         ))}

@@ -17,11 +17,15 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <p className="text-lg font-bold tracking-tight mb-4">원산도풀빌라</p>
+            <p className="text-lg font-bold tracking-tight mb-4">서해스파풀빌라</p>
             <p className="text-sm text-white/40 leading-relaxed mb-6">
-              충청남도 보령시 오천면 원산도리
+              충남 보령시 오천면 원산도 4길 39-23
               <br />
               체크인 15:00 &nbsp;·&nbsp; 체크아웃 11:00
+            </p>
+
+            <p className="text-sm text-white/40 leading-relaxed mb-6">
+              <span className="font-semibold text-white/60">문의</span> 041-932-3923
             </p>
             <div className="flex gap-3">
               <a href="#" aria-label="Instagram" className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 text-white/60 hover:bg-white hover:text-gray-900 transition-colors">
@@ -62,7 +66,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-          <p className="text-xs text-white/25">© 2026 원산도풀빌라. All rights reserved.</p>
+          <p className="text-xs text-white/25">© 2026 서해스파풀빌라. All rights reserved.</p>
           <a href="https://www.weasley-market.com/homepage-development" target="_blank" rel="noopener noreferrer" className="text-xs text-white/20">
             made by <span className="text-white/50">GlobalMig</span>
           </a>

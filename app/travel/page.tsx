@@ -4,12 +4,7 @@ import ImageSlider from "../components/ImageSlider";
 import Footer from "../components/Footer";
 
 function makeImgs(folder: string, base: string, total: number): string[] {
-  return [
-    `/${folder}/${base}.jpg`,
-    ...Array.from({ length: total - 1 }, (_, i) =>
-      `/${folder}/${base}_${String(i + 1).padStart(2, "0")}.jpg`
-    ),
-  ];
+  return [`/${folder}/${base}.jpg`, ...Array.from({ length: total - 1 }, (_, i) => `/${folder}/${base}_${String(i + 1).padStart(2, "0")}.jpg`)];
 }
 
 const attractions = [
@@ -36,7 +31,7 @@ const attractions = [
     name: "사창 해수욕장",
     nameEn: "Sachang Beach",
     category: "해수욕장",
-    distance: "차량 15분",
+    distance: "차량 10분",
     desc: "잔잔한 파도와 넓은 백사장이 특징인 사창 해수욕장. 가족 단위 방문객이 즐기기 좋은 포근한 분위기의 해변입니다.",
     images: makeImgs("주변관광지(사창해수욕장)", "KakaoTalk_20260702_114243966", 3),
   },
@@ -46,7 +41,7 @@ const attractions = [
     nameEn: "Wonsando Mobility",
     category: "레저",
     distance: "차량 5분",
-    desc: "전기 바이크, 버기카 등 다양한 모빌리티를 타고 원산도 곳곳을 탐험해보세요. 섬의 자연과 풍경을 색다른 방식으로 즐길 수 있는 액티비티입니다.",
+    desc: "전기 바이크, 버기카 등 다양한 모빌리티를 체험해보세요. 섬의 자연과 풍경을 색다른 방식으로 즐길 수 있는 액티비티입니다.",
     images: makeImgs("주변관광지(원산도 모빌리티)", "KakaoTalk_20260702_114220367", 5),
   },
   {
@@ -62,8 +57,8 @@ const attractions = [
 
 const categoryColor: Record<string, string> = {
   해수욕장: "#4A7FA5",
-  레저:    "#5B8E6E",
-  관광:    "#8B6E9E",
+  레저: "#5B8E6E",
+  관광: "#8B6E9E",
 };
 
 export default function TravelPage() {
@@ -71,19 +66,10 @@ export default function TravelPage() {
     <main>
       {/* Hero */}
       <section className="relative overflow-hidden" style={{ height: "50vh" }}>
-        <Image
-          src={attractions[0].images[0]}
-          alt="주변관광지"
-          fill
-          className="object-cover"
-          unoptimized
-          priority
-        />
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center">
-          <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold mb-4 text-white/90">
-            Nearby Attractions
-          </span>
+        <Image src={attractions[0].images[0]} alt="주변관광지" fill className="object-cover brightness-110 saturate-[1.1]" unoptimized priority />
+        <div className="absolute inset-0 bg-black/15" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center [text-shadow:0_2px_16px_rgba(0,0,0,0.6),0_1px_3px_rgba(0,0,0,0.5)]">
+          <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold mb-4 text-white/90">Nearby Attractions</span>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">주변 관광지</h1>
         </div>
       </section>
@@ -91,9 +77,7 @@ export default function TravelPage() {
       {/* Intro */}
       <section className="py-16 px-8 text-center">
         <div className="max-w-xl mx-auto">
-          <span className="inline-flex items-center rounded-full bg-[#2A8EA2]/10 px-3.5 py-1.5 text-xs font-semibold text-[#1E7A8D] mb-4">
-            Explore Wonsando
-          </span>
+          <span className="inline-flex items-center rounded-full bg-[#2A8EA2]/10 px-3.5 py-1.5 text-xs font-semibold text-[#1E7A8D] mb-4">Explore Wonsando</span>
           <p className="text-base text-gray-500 leading-relaxed">
             원산도의 아름다운 해수욕장과 레저 시설, 관광 명소를 탐험해보세요.
             <br className="hidden md:block" />
@@ -107,43 +91,21 @@ export default function TravelPage() {
         <section key={att.id} className={`py-16 px-8 ${idx % 2 === 1 ? "bg-[#FAFAF9]" : "bg-white"}`}>
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
             {/* Image */}
-            <div
-              className={`${idx % 2 === 1 ? "md:order-2" : ""} relative overflow-hidden rounded-3xl shadow-xl`}
-              style={{ height: "400px" }}
-            >
-              {att.images.length > 1 ? (
-                <ImageSlider images={att.images} alt={att.name} className="h-full" />
-              ) : (
-                <Image
-                  src={att.images[0]}
-                  alt={att.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              )}
+            <div className={`${idx % 2 === 1 ? "md:order-2" : ""} relative overflow-hidden rounded-3xl shadow-xl`} style={{ height: "400px" }}>
+              {att.images.length > 1 ? <ImageSlider images={att.images} alt={att.name} className="h-full" /> : <Image src={att.images[0]} alt={att.name} fill className="object-cover" unoptimized />}
             </div>
 
             {/* Text */}
             <div className={idx % 2 === 1 ? "md:order-1" : ""}>
               <div className="flex items-center gap-3 mb-4">
-                <span
-                  className="text-xs font-semibold px-3 py-1 rounded-full text-white"
-                  style={{ backgroundColor: categoryColor[att.category] ?? "#888" }}
-                >
+                <span className="text-xs font-semibold px-3 py-1 rounded-full text-white" style={{ backgroundColor: categoryColor[att.category] ?? "#888" }}>
                   {att.category}
                 </span>
                 <span className="text-sm text-gray-400">{att.distance}</span>
               </div>
-              <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-1.5">
-                {att.nameEn}
-              </p>
-              <h2 className="text-3xl font-bold text-gray-900 mb-5 tracking-tight">
-                {att.name}
-              </h2>
-              <p className="text-base text-gray-500 leading-relaxed">
-                {att.desc}
-              </p>
+              <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-1.5">{att.nameEn}</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-5 tracking-tight">{att.name}</h2>
+              <p className="text-base text-gray-500 leading-relaxed">{att.desc}</p>
             </div>
           </div>
         </section>
@@ -153,11 +115,9 @@ export default function TravelPage() {
       <section className="py-20 px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-10 text-center">
-            <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-2">
-              Location
-            </p>
+            <p className="text-xs font-semibold text-[#2A8EA2] uppercase tracking-wide mb-2">Location</p>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">오시는 길</h2>
-            <p className="text-sm text-gray-400">충청남도 보령시 오천면 원산도리</p>
+            <p className="text-sm text-gray-400">충남 보령시 오천면 원산도 4길 39-23</p>
           </div>
           <div className="relative overflow-hidden rounded-3xl shadow-xl" style={{ height: "420px" }}>
             <iframe
@@ -166,7 +126,7 @@ export default function TravelPage() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="원산도풀빌라 위치"
+              title="서해스파풀빌라 위치"
             />
           </div>
         </div>
@@ -180,12 +140,13 @@ export default function TravelPage() {
             <p className="text-xl font-bold text-gray-900">원산도에서 특별한 추억을 만들어 보세요</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <Link href="/booking"
-              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow whitespace-nowrap text-center">
+            <Link href="/booking" className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-[#2A8EA2] text-white shadow-sm hover:shadow-lg transition-shadow whitespace-nowrap text-center">
               실시간예약
             </Link>
-            <Link href="/rooms"
-              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-white border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors whitespace-nowrap text-center">
+            <Link
+              href="/rooms"
+              className="btn-pop text-sm font-semibold rounded-full px-7 py-3 bg-white border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors whitespace-nowrap text-center"
+            >
               객실 보기
             </Link>
           </div>

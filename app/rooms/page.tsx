@@ -54,12 +54,12 @@ export default function RoomsPage() {
           src={A_IMGS[2]}
           alt="객실소개"
           fill
-          className="object-cover"
+          className="object-cover brightness-110 saturate-[1.1]"
           unoptimized
           priority
         />
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center">
+        <div className="absolute inset-0 bg-black/15" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center [text-shadow:0_2px_16px_rgba(0,0,0,0.6),0_1px_3px_rgba(0,0,0,0.5)]">
           <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold mb-4 text-white/90">
             Accommodation
           </span>
