@@ -20,11 +20,11 @@ const standardRoomExtras = {
   extraGuestFee: "1인 30,000원 (성인, 아동, 유아) · 1박 기준 · 영유아 인원수 포함 · 기준 인원 초과 시 펜션 문의",
   pool: {
     size: "2.2M × 6M · 수심 1.2M (수심조절 불가)",
-    heatedFee: "50,000원",
+    heatedFee: "100,000원",
     heatedInfo: "미온수 온도 28~30도",
   },
   bbq: {
-    desc: "실내 바베큐 가능 (전기 양면그릴)",
+    desc: "실내 바베큐 가능 (발코니 양면그릴)",
     fee: "20,000원",
   },
   equipment: [
@@ -199,7 +199,7 @@ export default async function RoomDetailPage(props: PageProps<"/rooms/[id]">) {
                     <ul className="text-sm text-gray-500 leading-relaxed space-y-0.5">
                       <li>스위밍 스파 크기: {room.pool.size}</li>
                       <li>
-                        미온수 이용요금: 1박당 <s className="text-red-500">{room.pool.heatedFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span> (현장결제)
+                        스위밍스파&온탕스파 이용요금: 1박당 <s className="text-red-500">{room.pool.heatedFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span> (현장결제)
                       </li>
                       <li>{room.pool.heatedInfo}</li>
                     </ul>

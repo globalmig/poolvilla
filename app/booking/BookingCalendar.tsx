@@ -29,9 +29,9 @@ const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: strin
 };
 
 const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number; normal: number }> = {
-  a: { weekday: 342000, weekend: 399000, peak: 399000, normal: 570000 },
-  b: { weekday: 342000, weekend: 399000, peak: 399000, normal: 570000 },
-  c: { weekday: 316000, weekend: 369000, peak: 369000, normal: 528000 },
+  a: { weekday: 149000, weekend: 199000, peak: 199000, normal: 570000 },
+  b: { weekday: 149000, weekend: 199000, peak: 199000, normal: 570000 },
+  c: { weekday: 119000, weekend: 169000, peak: 169000, normal: 528000 },
 };
 
 function getRoomType(roomId: string): RoomType {
@@ -58,9 +58,9 @@ interface Extra {
 }
 
 const EXTRAS: Extra[] = [
-  { id: "bbq", label: "실내 바베큐 (안방 양면그릴)", desc: "20,000원", price: 20000 },
-  { id: "bbq2", label: "실외 숯불바베큐", desc: "30,000원 - 준비중", price: 30000 },
-  { id: "water", label: "미온수", desc: "50,000원", price: 50000 },
+  { id: "bbq", label: "실내 바베큐 (발코니 양면그릴)", desc: "20,000원", price: 20000 },
+  { id: "bbq2", label: "숯불바베큐", desc: "30,000원", price: 30000 },
+  { id: "water", label: "스위밍스파&온탕스파", desc: "100,000원", price: 100000 },
   { id: "car", label: "전기차 충전", desc: "별도 문의 및 현장결제", price: 0 },
 ];
 
@@ -572,7 +572,7 @@ export default function BookingCalendar() {
           <div className="rounded-2xl bg-[#2A8EA2]/5 border border-[#2A8EA2]/15 px-5 py-4 space-y-1">
             <p className="text-sm font-semibold text-[#2A8EA2]">개별 수영장 이용 안내</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              미온수 이용요금 <span className="font-semibold text-gray-700">50,000원/박</span> — 현장결제
+              스위밍스파&온탕스파 이용요금 <span className="font-semibold text-gray-700">100,000원/박</span> — 현장결제
             </p>
             <p className="text-xs text-gray-400 leading-relaxed">객실 이용 시 미온수 이용 필수 · 냉수 이용 불가</p>
           </div>
@@ -685,7 +685,7 @@ export default function BookingCalendar() {
                   <ul className="space-y-1.5 text-gray-500">
                     <li>· 총 금액의 100%입금 확인 후 예약이 확정됩니다.</li>
                     <li>· 추가요금은 체크인 당일 현장에서 계좌이체로 납부해 주세요.</li>
-                    <li>· 개별 수영장 미온수 이용요금(50,000원/박)은 현장에서 별도 결제합니다.</li>
+                    <li>· 개별 수영장 스위밍스파&온탕스파 이용요금(100,000원/박)은 현장에서 별도 결제합니다.</li>
                   </ul>
                 </section>
 
