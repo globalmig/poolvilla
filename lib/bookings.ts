@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import { d1 } from './d1';
+import { readPricing } from './pricing';
 
 export type RoomType = 'a' | 'b' | 'c';
 
@@ -19,21 +19,86 @@ export interface Booking {
   createdAt: string;
 }
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'bookings.json');
-
-export function readBookings(): Booking[] {
-  try {
-    if (!fs.existsSync(DATA_FILE)) return [];
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-  } catch {
-    return [];
-  }
+interface BookingRow {
+  id: string;
+  guest_name: string;
+  phone: string;
+  email: string;
+  room_type: RoomType;
+  room_id: string;
+  check_in: string;
+  check_out: string;
+  guests: number;
+  status: Booking['status'];
+  notes: string;
+  total_price: number;
+  created_at: string;
 }
 
-export function writeBookings(bookings: Booking[]): void {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
+function rowToBooking(r: BookingRow): Booking {
+  return {
+    id: r.id,
+    guestName: r.guest_name,
+    phone: r.phone,
+    email: r.email,
+    roomType: r.room_type,
+    roomId: r.room_id,
+    checkIn: r.check_in,
+    checkOut: r.check_out,
+    guests: r.guests,
+    status: r.status,
+    notes: r.notes,
+    totalPrice: r.total_price,
+    createdAt: r.created_at,
+  };
+}
+
+export async function readBookings(): Promise<Booking[]> {
+  const { results } = await d1<BookingRow>('SELECT * FROM bookings ORDER BY created_at DESC');
+  return results.map(rowToBooking);
+}
+
+export async function insertBooking(booking: Booking): Promise<void> {
+  await d1(
+    `INSERT INTO bookings (id, guest_name, phone, email, room_type, room_id, check_in, check_out, guests, status, notes, total_price, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      booking.id, booking.guestName, booking.phone, booking.email, booking.roomType, booking.roomId,
+      booking.checkIn, booking.checkOut, booking.guests, booking.status, booking.notes, booking.totalPrice, booking.createdAt,
+    ]
+  );
+}
+
+const UPDATABLE_FIELDS: Record<string, string> = {
+  status: 'status',
+  notes: 'notes',
+  guestName: 'guest_name',
+  phone: 'phone',
+  email: 'email',
+};
+
+export async function updateBooking(id: string, fields: Record<string, unknown>): Promise<Booking | null> {
+  const sets: string[] = [];
+  const params: unknown[] = [];
+  for (const [key, column] of Object.entries(UPDATABLE_FIELDS)) {
+    if (key in fields) {
+      sets.push(`${column} = ?`);
+      params.push(fields[key]);
+    }
+  }
+
+  if (sets.length > 0) {
+    params.push(id);
+    await d1(`UPDATE bookings SET ${sets.join(', ')} WHERE id = ?`, params);
+  }
+
+  const { results } = await d1<BookingRow>('SELECT * FROM bookings WHERE id = ?', [id]);
+  return results[0] ? rowToBooking(results[0]) : null;
+}
+
+export async function deleteBooking(id: string): Promise<boolean> {
+  const { meta } = await d1('DELETE FROM bookings WHERE id = ?', [id]);
+  return meta.changes > 0;
 }
 
 // ─── Individual rooms ──────────────────────────────────────────────────────────
@@ -61,12 +126,6 @@ export const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size
   c: { name: '스탠다드', typeLabel: 'C타입', size: '37평형', maxGuests: 6 },
 };
 
-export const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number }> = {
-  a: { weekday: 280000, weekend: 380000, peak: 450000 },
-  b: { weekday: 280000, weekend: 380000, peak: 450000 },
-  c: { weekday: 200000, weekend: 300000, peak: 350000 },
-};
-
 // ─── Pricing helpers ───────────────────────────────────────────────────────────
 
 const PEAK_MD = new Set([
@@ -87,19 +146,14 @@ export function isWeekend(dateStr: string): boolean {
   return day === 5 || day === 6;
 }
 
-export function nightlyRate(roomType: RoomType, dateStr: string): number {
-  const prices = ROOM_PRICES[roomType];
-  if (isPeakDate(dateStr)) return prices.peak;
-  if (isWeekend(dateStr)) return prices.weekend;
-  return prices.weekday;
-}
-
-export function calculateTotal(roomType: RoomType, checkIn: string, checkOut: string): number {
+export async function calculateTotal(roomType: RoomType, checkIn: string, checkOut: string): Promise<number> {
+  const prices = (await readPricing()).rooms[roomType];
   let total = 0;
   const cur = new Date(checkIn);
   const end = new Date(checkOut);
   while (cur < end) {
-    total += nightlyRate(roomType, cur.toISOString().split('T')[0]);
+    const dateStr = cur.toISOString().split('T')[0];
+    total += isPeakDate(dateStr) ? prices.peak : isWeekend(dateStr) ? prices.weekend : prices.weekday;
     cur.setDate(cur.getDate() + 1);
   }
   return total;

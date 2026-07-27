@@ -2,6 +2,9 @@
 import Link from "next/link";
 import ImageSlider from "../components/ImageSlider";
 import Footer from "../components/Footer";
+import { readPricing, krw, extraPrice } from "@/lib/pricing";
+
+export const dynamic = "force-dynamic";
 
 function makeImgs(folder: string, base: string, total: number): string[] {
   return [`/${folder}/${base}.jpg`, ...Array.from({ length: total - 1 }, (_, i) => `/${folder}/${base}_${String(i + 1).padStart(2, "0")}.jpg`)];
@@ -13,42 +16,50 @@ const SAUNA_IMGS = [1, 2, 3, 4, 5, 6, 7].map((i) => `/${SAUNA_BASE}_${String(i).
 const GRILL_IMGS = ["/grill.jpg", "/grill02.jpg"];
 const OUTDOOR_BBQ_IMGS: string[] = ["/grill_out.jpg", "/grill_out02.jpg"];
 
-const facilities = [
-  {
-    id: "spa-pool",
-    name: "실내 스위밍 스파",
-    nameEn: "Indoor Swimming Spa",
-    desc: "각 객실마다 독립적인 실내 스위밍 스파가 구비되어 있습니다. 수온은 미온수 기준 28~30°C로 유지됩니다. 스위밍 스파 크기는 2.2M × 6M (수심 1.2M)이며, 스위밍스파&온탕스파 이용 요금은 1박당 100,000원 (현장결제)입니다.",
-    details: ["크기: 2.2M × 6M · 수심 1.2M", "미온수 온도: 28~30°C", "스위밍스파&온탕스파 이용 요금: 1박당 100,000원 (현장결제)", "객실 이용 시 미온수 이용 필수 (냉수 이용 불가)"],
-    images: SPA_IMGS,
-  },
-  {
-    id: "sauna",
-    name: "온열 사우나",
-    nameEn: "Heated Sauna",
-    desc: "각 객실 내 프라이빗 온열 사우나를 통해 피로를 풀고 건강한 땀을 흘려보세요. 자연 방식의 온열로 몸의 순환을 돕고 힐링 타임을 선사합니다.",
-    details: ["전 객실 프라이빗 온열 사우나 구비", "건식 온열 방식", "24시간 이용 가능"],
-    images: SAUNA_IMGS,
-  },
-  {
-    id: "bbq-grill",
-    name: "실내 바베큐 (발코니 양면그릴)",
-    nameEn: "Indoor BBQ Grill",
-    desc: "객실 안에서 프라이빗하게 즐기는 양면 그릴 바베큐입니다. 가족·연인과 함께 편안하게 고기와 해산물을 구워 드실 수 있어, 날씨 걱정 없이 실내에서 여유로운 바베큐 타임을 즐기실 수 있습니다.",
-    details: ["양면 그릴 대여료: 20,000원 (1박 기준)", "예약 시 사전 요청 필요"],
-    images: GRILL_IMGS,
-  },
-  {
-    id: "outdoor-bbq",
-    name: "외부 바베큐",
-    nameEn: "Outdoor BBQ",
-    desc: "탁 트인 야외 공간에서 즐기는 바베큐입니다. 전기그릴과 동일한 방식으로 편리하게 이용하실 수 있으며, 사전 예약 시 별도 이용료가 부과됩니다.",
-    details: ["이용 요금: 30,000원 (유료)", "이용 방식: 전기그릴과 동일", "예약 시 사전 요청 필요", "숯·착화제는 체크인 시 별도 구매 가능"],
-    images: OUTDOOR_BBQ_IMGS,
-  },
-];
+async function buildFacilities() {
+  const pricing = await readPricing();
+  const spaFee = krw(extraPrice(pricing.extras, "spaSauna"));
+  const grillFee = krw(extraPrice(pricing.extras, "balconyGrill"));
+  const outdoorBbqFee = krw(extraPrice(pricing.extras, "charcoalBbq"));
 
-export default function SpecialPage() {
+  return [
+    {
+      id: "spa-pool",
+      name: "실내 스위밍 스파",
+      nameEn: "Indoor Swimming Spa",
+      desc: `각 객실마다 독립적인 실내 스위밍 스파가 구비되어 있습니다. 수온은 미온수 기준 28~30°C로 유지됩니다. 스위밍 스파 크기는 2.2M × 6M (수심 1.2M)이며, 스위밍스파&온탕스파 이용 요금은 1박당 ${spaFee} (현장결제)입니다.`,
+      details: ["크기: 2.2M × 6M · 수심 1.2M", "미온수 온도: 28~30°C", `스위밍스파&온탕스파 이용 요금: 1박당 ${spaFee} (현장결제)`, "객실 이용 시 미온수 이용 필수 (냉수 이용 불가)"],
+      images: SPA_IMGS,
+    },
+    {
+      id: "sauna",
+      name: "온열 사우나",
+      nameEn: "Heated Sauna",
+      desc: "각 객실 내 프라이빗 온열 사우나를 통해 피로를 풀고 건강한 땀을 흘려보세요. 자연 방식의 온열로 몸의 순환을 돕고 힐링 타임을 선사합니다.",
+      details: ["전 객실 프라이빗 온열 사우나 구비", "건식 온열 방식", "24시간 이용 가능"],
+      images: SAUNA_IMGS,
+    },
+    {
+      id: "bbq-grill",
+      name: "실내 바베큐 (발코니 양면그릴)",
+      nameEn: "Indoor BBQ Grill",
+      desc: "객실 안에서 프라이빗하게 즐기는 양면 그릴 바베큐입니다. 가족·연인과 함께 편안하게 고기와 해산물을 구워 드실 수 있어, 날씨 걱정 없이 실내에서 여유로운 바베큐 타임을 즐기실 수 있습니다.",
+      details: [`양면 그릴 대여료: ${grillFee} (1박 기준)`, "예약 시 사전 요청 필요"],
+      images: GRILL_IMGS,
+    },
+    {
+      id: "outdoor-bbq",
+      name: "외부 바베큐",
+      nameEn: "Outdoor BBQ",
+      desc: "탁 트인 야외 공간에서 즐기는 바베큐입니다. 전기그릴과 동일한 방식으로 편리하게 이용하실 수 있으며, 사전 예약 시 별도 이용료가 부과됩니다.",
+      details: [`이용 요금: ${outdoorBbqFee} (유료)`, "이용 방식: 전기그릴과 동일", "예약 시 사전 요청 필요", "숯·착화제는 체크인 시 별도 구매 가능"],
+      images: OUTDOOR_BBQ_IMGS,
+    },
+  ];
+}
+
+export default async function SpecialPage() {
+  const facilities = await buildFacilities();
   return (
     <main>
       {/* Hero */}

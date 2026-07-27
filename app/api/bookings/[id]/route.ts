@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
-import { readBookings, writeBookings } from '@/lib/bookings';
+import { updateBooking, deleteBooking } from '@/lib/bookings';
+
+const ALLOWED_FIELDS = ['status', 'notes', 'guestName', 'phone', 'email'];
 
 export async function PATCH(
   request: NextRequest,
@@ -7,24 +9,18 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const bookings = readBookings();
-  const index = bookings.findIndex((b) => b.id === id);
 
-  if (index === -1) {
-    return Response.json({ error: '예약을 찾을 수 없습니다.' }, { status: 404 });
-  }
-
-  // Only allow updating safe fields
-  const allowed = ['status', 'notes', 'guestName', 'phone', 'email'];
   const update: Record<string, unknown> = {};
-  for (const key of allowed) {
+  for (const key of ALLOWED_FIELDS) {
     if (key in body) update[key] = body[key];
   }
 
-  bookings[index] = { ...bookings[index], ...update };
-  writeBookings(bookings);
+  const updated = await updateBooking(id, update);
+  if (!updated) {
+    return Response.json({ error: '예약을 찾을 수 없습니다.' }, { status: 404 });
+  }
 
-  return Response.json(bookings[index]);
+  return Response.json(updated);
 }
 
 export async function DELETE(
@@ -32,15 +28,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const bookings = readBookings();
-  const index = bookings.findIndex((b) => b.id === id);
+  const deleted = await deleteBooking(id);
 
-  if (index === -1) {
+  if (!deleted) {
     return Response.json({ error: '예약을 찾을 수 없습니다.' }, { status: 404 });
   }
-
-  bookings.splice(index, 1);
-  writeBookings(bookings);
 
   return Response.json({ success: true });
 }

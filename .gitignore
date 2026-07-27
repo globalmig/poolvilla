@@ -42,3 +42,4 @@ next-env.d.ts
 
 # booking data (local storage — do not commit real guest data)
 /data/bookings.json
+/data/pricing.json

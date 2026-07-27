@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: 'checkIn and checkOut required' }, { status: 400 });
   }
 
-  const bookings = readBookings();
+  const bookings = await readBookings();
   const booked   = getBookedRooms(bookings, checkIn, checkOut);
 
   return Response.json([...booked]);

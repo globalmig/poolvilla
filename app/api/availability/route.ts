@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: 'start and end required' }, { status: 400 });
   }
 
-  const bookings = readBookings().filter((b) => b.status !== 'cancelled');
+  const bookings = (await readBookings()).filter((b) => b.status !== 'cancelled');
   const result: Record<string, { booked: number; total: number; status: string }> = {};
 
   const cur = new Date(startStr);

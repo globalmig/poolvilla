@@ -28,7 +28,10 @@ const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: strin
   c: { name: "스탠다드", typeLabel: "C타입", size: "37평형", maxGuests: 6 },
 };
 
-const ROOM_PRICES: Record<RoomType, { weekday: number; weekend: number; peak: number; normal: number }> = {
+type RoomPrices = Record<RoomType, { weekday: number; weekend: number; peak: number; normal: number }>;
+
+// Fallback shown before /api/pricing responds — kept in sync with lib/pricing.ts DEFAULT_PRICING
+const DEFAULT_ROOM_PRICES: RoomPrices = {
   a: { weekday: 149000, weekend: 199000, peak: 199000, normal: 570000 },
   b: { weekday: 149000, weekend: 199000, peak: 199000, normal: 570000 },
   c: { weekday: 119000, weekend: 169000, peak: 169000, normal: 528000 },
@@ -57,12 +60,31 @@ interface Extra {
   price: number;
 }
 
-const EXTRAS: Extra[] = [
-  { id: "bbq", label: "실내 바베큐 (발코니 양면그릴)", desc: "20,000원", price: 20000 },
-  { id: "bbq2", label: "숯불바베큐", desc: "30,000원", price: 30000 },
-  { id: "water", label: "스위밍스파&온탕스파", desc: "100,000원", price: 100000 },
+// Fallback shown before /api/pricing responds — kept in sync with lib/pricing.ts DEFAULT_PRICING
+const DEFAULT_EXTRAS: Extra[] = [
+  { id: "balconyGrill", label: "실내 바베큐 (발코니 양면그릴)", desc: "20,000원", price: 20000 },
+  { id: "charcoalBbq", label: "숯불바베큐", desc: "30,000원", price: 30000 },
+  { id: "spaSauna", label: "스위밍스파&온탕스파", desc: "100,000원", price: 100000 },
   { id: "car", label: "전기차 충전", desc: "별도 문의 및 현장결제", price: 0 },
 ];
+
+interface PricingExtra {
+  id: string;
+  label: string;
+  price: number;
+}
+
+function buildExtras(extras: PricingExtra[]): Extra[] {
+  return [
+    ...extras.map((e) => ({
+      id: e.id,
+      label: e.label,
+      desc: e.price > 0 ? `${e.price.toLocaleString("ko-KR")}원` : "무료",
+      price: e.price,
+    })),
+    { id: "car", label: "전기차 충전", desc: "별도 문의 및 현장결제", price: 0 },
+  ];
+}
 
 // ─── Calendar / date helpers ──────────────────────────────────────────────────
 
@@ -120,16 +142,16 @@ function isWeekend(dateStr: string): boolean {
   return d === 5 || d === 6;
 }
 
-function nightlyRate(roomType: RoomType, dateStr: string): number {
-  const p = ROOM_PRICES[roomType];
+function nightlyRate(prices: RoomPrices, roomType: RoomType, dateStr: string): number {
+  const p = prices[roomType];
   return isPeak(dateStr) ? p.peak : isWeekend(dateStr) ? p.weekend : p.weekday;
 }
 
-function calcTotal(roomType: RoomType, checkIn: Date, checkOut: Date): number {
+function calcTotal(prices: RoomPrices, roomType: RoomType, checkIn: Date, checkOut: Date): number {
   let sum = 0;
   const cur = new Date(checkIn);
   while (cur < checkOut) {
-    sum += nightlyRate(roomType, fmt(cur));
+    sum += nightlyRate(prices, roomType, fmt(cur));
     cur.setDate(cur.getDate() + 1);
   }
   return sum;
@@ -216,6 +238,20 @@ export default function BookingCalendar() {
   const [selectedExtras, setSelectedExtras] = useState<Set<string>>(new Set());
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [roomPrices, setRoomPrices] = useState<RoomPrices>(DEFAULT_ROOM_PRICES);
+  const [extras, setExtras] = useState<Extra[]>(DEFAULT_EXTRAS);
+
+  useEffect(() => {
+    fetch("/api/pricing")
+      .then((res) => res.json())
+      .then((data) => {
+        setRoomPrices(data.rooms);
+        setExtras(buildExtras(data.extras));
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+  }, []);
 
   function toggleExtra(id: string) {
     setSelectedExtras((prev) => {
@@ -225,7 +261,9 @@ export default function BookingCalendar() {
     });
   }
 
-  const extrasTotal = EXTRAS.filter((e) => selectedExtras.has(e.id)).reduce((s, e) => s + e.price, 0);
+  const extrasTotal = extras.filter((e) => selectedExtras.has(e.id)).reduce((s, e) => s + e.price, 0);
+  const spaExtra = extras.find((e) => e.id === "spaSauna");
+  const spaFeeLabel = krw(spaExtra?.price ?? 0);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -315,7 +353,7 @@ export default function BookingCalendar() {
   const roomInfo = selectedType ? ROOM_INFO[selectedType] : null;
   const maxGuests = roomInfo ? roomInfo.maxGuests : 15;
   const nights = checkIn && checkOut ? Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000) : 0;
-  const roomTotal = checkIn && checkOut && selectedType ? calcTotal(selectedType, checkIn, checkOut) : 0;
+  const roomTotal = checkIn && checkOut && selectedType ? calcTotal(roomPrices, selectedType, checkIn, checkOut) : 0;
   const total = roomTotal + extrasTotal;
 
   // ── Submit ──
@@ -388,7 +426,7 @@ export default function BookingCalendar() {
           {selectedExtras.size > 0 && (
             <div>
               <span className="font-semibold text-gray-800">추가 옵션:</span>{" "}
-              {EXTRAS.filter((e) => selectedExtras.has(e.id))
+              {extras.filter((e) => selectedExtras.has(e.id))
                 .map((e) => e.label)
                 .join(", ")}
             </div>
@@ -417,7 +455,7 @@ export default function BookingCalendar() {
           {ROOM_TYPES.map((type) => {
             const info = ROOM_INFO[type];
             const rooms = ROOMS_BY_TYPE[type];
-            const prices = ROOM_PRICES[type];
+            const prices = roomPrices[type];
             return (
               <div key={type}>
                 <div className="flex items-baseline justify-between mb-3 flex-wrap gap-1">
@@ -569,20 +607,22 @@ export default function BookingCalendar() {
           </div>
 
           {/* ── 수영장 안내 ── */}
-          <div className="rounded-2xl bg-[#2A8EA2]/5 border border-[#2A8EA2]/15 px-5 py-4 space-y-1">
-            <p className="text-sm font-semibold text-[#2A8EA2]">개별 수영장 이용 안내</p>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              스위밍스파&온탕스파 이용요금 <span className="font-semibold text-gray-700">100,000원/박</span> — 현장결제
-            </p>
-            <p className="text-xs text-gray-400 leading-relaxed">객실 이용 시 미온수 이용 필수 · 냉수 이용 불가</p>
-          </div>
+          {spaExtra && (
+            <div className="rounded-2xl bg-[#2A8EA2]/5 border border-[#2A8EA2]/15 px-5 py-4 space-y-1">
+              <p className="text-sm font-semibold text-[#2A8EA2]">개별 수영장 이용 안내</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                스위밍스파&온탕스파 이용요금 <span className="font-semibold text-gray-700">{spaFeeLabel}/박</span> — 현장결제
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed">객실 이용 시 미온수 이용 필수 · 냉수 이용 불가</p>
+            </div>
+          )}
 
           {/* ── 추가 옵션 ── */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               추가 옵션 <span className="text-gray-400 font-normal">(선택)</span>
             </label>
-            {EXTRAS.map((extra) => {
+            {extras.map((extra) => {
               const on = selectedExtras.has(extra.id);
               return (
                 <button
@@ -685,7 +725,7 @@ export default function BookingCalendar() {
                   <ul className="space-y-1.5 text-gray-500">
                     <li>· 총 금액의 100%입금 확인 후 예약이 확정됩니다.</li>
                     <li>· 추가요금은 체크인 당일 현장에서 계좌이체로 납부해 주세요.</li>
-                    <li>· 개별 수영장 스위밍스파&온탕스파 이용요금(100,000원/박)은 현장에서 별도 결제합니다.</li>
+                    {spaExtra && <li>· 개별 수영장 스위밍스파&온탕스파 이용요금({spaFeeLabel}/박)은 현장에서 별도 결제합니다.</li>}
                   </ul>
                 </section>
 
@@ -920,19 +960,19 @@ export default function BookingCalendar() {
               </div>
               <div className="flex justify-between">
                 <span>평일</span>
-                <span className="text-gray-400">{krw(ROOM_PRICES[selectedType].weekday)}</span>
+                <span className="text-gray-400">{krw(roomPrices[selectedType].weekday)}</span>
               </div>
               <div className="flex justify-between">
                 <span>주말</span>
-                <span className="text-gray-400">{krw(ROOM_PRICES[selectedType].weekend)}</span>
+                <span className="text-gray-400">{krw(roomPrices[selectedType].weekend)}</span>
               </div>
               <div className="flex justify-between">
                 <span>성수기</span>
-                <span className="text-gray-400">{krw(ROOM_PRICES[selectedType].peak)}</span>
+                <span className="text-gray-400">{krw(roomPrices[selectedType].peak)}</span>
               </div>
               <div className="flex justify-between">
                 <span>정상가</span>
-                <span className="text-gray-400">{krw(ROOM_PRICES[selectedType].normal)}</span>
+                <span className="text-gray-400">{krw(roomPrices[selectedType].normal)}</span>
               </div>
               <p className="pt-1 text-gray-400">· 체크인 15:00 / 체크아웃 11:00</p>
               <p className="text-gray-400">· 100% 입금 후 확정</p>

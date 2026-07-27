@@ -2,33 +2,30 @@
 import Link from "next/link";
 import Footer from "../components/Footer";
 import { FiCheck, FiArrowRight } from "react-icons/fi";
+import { readPricing, krw } from "@/lib/pricing";
 
-const pricingData = [
-  {
-    type: "A타입",
-    weekday: "149,000원 (오픈기념40%세일)",
-    weekend: "199,000원 (오픈기념30%세일)",
-    peak: "199,000원 (오픈기념30%세일)",
-    normal: "570,000원",
-    highlight: false,
-  },
-  {
-    type: "B타입",
-    weekday: "149,000원 (오픈기념40%세일)",
-    weekend: "199,000원 (오픈기념30%세일)",
-    peak: "199,000원 (오픈기념30%세일)",
-    normal: "570,000원",
-    highlight: true,
-  },
-  {
-    type: "C타입",
-    weekday: "119,000원 (오픈기념40%세일)",
-    weekend: "169,000원 (오픈기념30%세일)",
-    peak: "169,000원 (오픈기념30%세일)",
-    normal: "528,000원",
-    highlight: false,
-  },
-];
+export const dynamic = "force-dynamic";
+
+function saleSuffix(sale: { label: string; percent: number; enabled: boolean }): string {
+  if (!sale.enabled || !sale.label.trim() || sale.percent <= 0) return "";
+  return ` (${sale.label}${sale.percent}%세일)`;
+}
+
+async function buildPricingData() {
+  const pricing = await readPricing();
+  return [
+    { type: "A타입", room: pricing.rooms.a, highlight: false },
+    { type: "B타입", room: pricing.rooms.b, highlight: true },
+    { type: "C타입", room: pricing.rooms.c, highlight: false },
+  ].map((p) => ({
+    type: p.type,
+    weekday: `${krw(p.room.weekday)}${saleSuffix(pricing.sale.weekday)}`,
+    weekend: `${krw(p.room.weekend)}${saleSuffix(pricing.sale.weekend)}`,
+    peak: `${krw(p.room.peak)}${saleSuffix(pricing.sale.peak)}`,
+    normal: krw(p.room.normal),
+    highlight: p.highlight,
+  }));
+}
 
 const steps = [
   { step: "01", title: "날짜 선택", desc: "원하시는 체크인·체크아웃 날짜와 객실 유형을 선택하세요." },
@@ -45,7 +42,8 @@ const cancelPolicy = [
   { timing: "입실 당일", refund: "환불 불가", safe: false },
 ];
 
-export default function ReservationPage() {
+export default async function ReservationPage() {
+  const pricingData = await buildPricingData();
   return (
     <main>
       {/* Hero */}

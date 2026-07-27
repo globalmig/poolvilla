@@ -1,13 +1,14 @@
 import { NextRequest } from 'next/server';
 import { randomUUID } from 'crypto';
 import {
-  readBookings, writeBookings,
+  readBookings, insertBooking,
   getBookedRooms, ROOM_ID_TO_TYPE,
   calculateTotal,
 } from '@/lib/bookings';
+import { sendInquirySms } from '@/lib/sms';
 
 export async function GET() {
-  return Response.json(readBookings());
+  return Response.json(await readBookings());
 }
 
 export async function POST(request: NextRequest) {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: '체크아웃 날짜가 체크인 날짜보다 늦어야 합니다.' }, { status: 400 });
   }
 
-  const bookings = readBookings();
+  const bookings = await readBookings();
   const bookedRooms = getBookedRooms(bookings, checkIn, checkOut);
 
   if (bookedRooms.has(roomId)) {
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const totalPrice = calculateTotal(roomType, checkIn, checkOut);
+  const totalPrice = await calculateTotal(roomType, checkIn, checkOut);
 
   const newBooking = {
     id: randomUUID(),
@@ -57,8 +58,9 @@ export async function POST(request: NextRequest) {
     createdAt: new Date().toISOString(),
   };
 
-  bookings.push(newBooking);
-  writeBookings(bookings);
+  await insertBooking(newBooking);
+
+  await sendInquirySms(newBooking);
 
   return Response.json(newBooking, { status: 201 });
 }

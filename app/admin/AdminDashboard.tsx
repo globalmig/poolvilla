@@ -2,9 +2,10 @@
 
 import { Fragment, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   FiLogOut, FiRefreshCw, FiCheck, FiTrash2,
-  FiSearch, FiCalendar, FiUsers, FiDollarSign, FiClock, FiAlertCircle,
+  FiSearch, FiCalendar, FiUsers, FiDollarSign, FiClock, FiAlertCircle, FiTag,
 } from 'react-icons/fi';
 
 interface Booking {
@@ -145,10 +146,16 @@ export default function AdminDashboard() {
           <p className="text-xs text-white/40 tracking-widest uppercase">Pool Villa</p>
           <h1 className="text-lg font-bold mt-1">관리자</h1>
         </div>
-        <nav className="flex-1 px-3">
+        <nav className="flex-1 px-3 space-y-1">
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">
             <FiCalendar /> 예약 관리
           </div>
+          <Link
+            href="/admin/pricing"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/60 hover:bg-white/10 hover:text-white text-sm font-semibold transition-colors"
+          >
+            <FiTag /> 요금 관리
+          </Link>
         </nav>
         <div className="px-3 pb-6">
           <button

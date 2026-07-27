@@ -3,6 +3,7 @@ import Link from "next/link";
 import Footer from "../../components/Footer";
 import ImageSlider from "../../components/ImageSlider";
 import { FiMoon, FiMaximize2, FiUsers } from "react-icons/fi";
+import { readPricing, krw, extraPrice } from "@/lib/pricing";
 
 function makeImgs(folder: string, base: string, total: number): string[] {
   return [`/${folder}/${base}.jpg`, ...Array.from({ length: total - 1 }, (_, i) => `/${folder}/${base}_${String(i + 1).padStart(2, "0")}.jpg`)];
@@ -20,12 +21,10 @@ const standardRoomExtras = {
   extraGuestFee: "1인 30,000원 (성인, 아동, 유아) · 1박 기준 · 영유아 인원수 포함 · 기준 인원 초과 시 펜션 문의",
   pool: {
     size: "2.2M × 6M · 수심 1.2M (수심조절 불가)",
-    heatedFee: "100,000원",
     heatedInfo: "미온수 온도 28~30도",
   },
   bbq: {
     desc: "실내 바베큐 가능 (발코니 양면그릴)",
-    fee: "20,000원",
   },
   equipment: [
     "전기차 충전 시설",
@@ -66,12 +65,10 @@ const roomMeta: Record<
     extraGuestFee?: string;
     pool?: {
       size: string;
-      heatedFee: string;
       heatedInfo: string;
     };
     bbq?: {
       desc: string;
-      fee: string;
     };
     equipment?: string[];
     schedule?: { weekday: string; weekend: string };
@@ -127,6 +124,9 @@ export default async function RoomDetailPage(props: PageProps<"/rooms/[id]">) {
   }
 
   const images = ROOM_TYPE_IMAGES[room.type] ?? [];
+  const pricing = await readPricing();
+  const heatedFee = krw(extraPrice(pricing.extras, "spaSauna"));
+  const bbqFee = krw(extraPrice(pricing.extras, "balconyGrill"));
 
   return (
     <main>
@@ -199,7 +199,7 @@ export default async function RoomDetailPage(props: PageProps<"/rooms/[id]">) {
                     <ul className="text-sm text-gray-500 leading-relaxed space-y-0.5">
                       <li>스위밍 스파 크기: {room.pool.size}</li>
                       <li>
-                        스위밍스파&온탕스파 이용요금: 1박당 <s className="text-red-500">{room.pool.heatedFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span> (현장결제)
+                        스위밍스파&온탕스파 이용요금: 1박당 <s className="text-red-500">{heatedFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span> (현장결제)
                       </li>
                       <li>{room.pool.heatedInfo}</li>
                     </ul>
@@ -210,7 +210,7 @@ export default async function RoomDetailPage(props: PageProps<"/rooms/[id]">) {
                   <div>
                     <p className="text-sm text-gray-800 font-semibold mb-1.5">실내 바베큐</p>
                     <p className="text-sm text-gray-500 leading-relaxed">
-                      {room.bbq.desc} · <s className="text-red-500">{room.bbq.fee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span>
+                      {room.bbq.desc} · <s className="text-red-500">{bbqFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span>
                     </p>
                   </div>
                 )}
