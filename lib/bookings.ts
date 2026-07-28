@@ -1,7 +1,13 @@
 import { d1 } from './d1';
-import { readPricing } from './pricing';
+import { readPricing, effectiveRoomPrice, type SalePeriod } from './pricing';
 
 export type RoomType = 'a' | 'b' | 'c';
+
+export interface BookingExtra {
+  id: string;
+  label: string;
+  price: number;
+}
 
 export interface Booking {
   id: string;
@@ -15,6 +21,8 @@ export interface Booking {
   guests: number;
   status: 'pending' | 'confirmed' | 'cancelled';
   notes: string;
+  extras: BookingExtra[];
+  extrasTotal: number;
   totalPrice: number;
   createdAt: string;
 }
@@ -31,6 +39,8 @@ interface BookingRow {
   guests: number;
   status: Booking['status'];
   notes: string;
+  extras: string;
+  extras_total: number;
   total_price: number;
   created_at: string;
 }
@@ -48,6 +58,8 @@ function rowToBooking(r: BookingRow): Booking {
     guests: r.guests,
     status: r.status,
     notes: r.notes,
+    extras: r.extras ? JSON.parse(r.extras) : [],
+    extrasTotal: r.extras_total,
     totalPrice: r.total_price,
     createdAt: r.created_at,
   };
@@ -60,11 +72,12 @@ export async function readBookings(): Promise<Booking[]> {
 
 export async function insertBooking(booking: Booking): Promise<void> {
   await d1(
-    `INSERT INTO bookings (id, guest_name, phone, email, room_type, room_id, check_in, check_out, guests, status, notes, total_price, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO bookings (id, guest_name, phone, email, room_type, room_id, check_in, check_out, guests, status, notes, extras, extras_total, total_price, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       booking.id, booking.guestName, booking.phone, booking.email, booking.roomType, booking.roomId,
-      booking.checkIn, booking.checkOut, booking.guests, booking.status, booking.notes, booking.totalPrice, booking.createdAt,
+      booking.checkIn, booking.checkOut, booking.guests, booking.status, booking.notes,
+      JSON.stringify(booking.extras), booking.extrasTotal, booking.totalPrice, booking.createdAt,
     ]
   );
 }
@@ -147,13 +160,14 @@ export function isWeekend(dateStr: string): boolean {
 }
 
 export async function calculateTotal(roomType: RoomType, checkIn: string, checkOut: string): Promise<number> {
-  const prices = (await readPricing()).rooms[roomType];
+  const pricing = await readPricing();
   let total = 0;
   const cur = new Date(checkIn);
   const end = new Date(checkOut);
   while (cur < end) {
     const dateStr = cur.toISOString().split('T')[0];
-    total += isPeakDate(dateStr) ? prices.peak : isWeekend(dateStr) ? prices.weekend : prices.weekday;
+    const period: SalePeriod = isPeakDate(dateStr) ? 'peak' : isWeekend(dateStr) ? 'weekend' : 'weekday';
+    total += effectiveRoomPrice(pricing, roomType, period);
     cur.setDate(cur.getDate() + 1);
   }
   return total;

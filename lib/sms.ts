@@ -1,5 +1,6 @@
 import { SolapiMessageService } from 'solapi';
 import type { Booking } from './bookings';
+import { krw } from './pricing';
 
 let cachedService: SolapiMessageService | null = null;
 
@@ -21,12 +22,21 @@ export async function sendInquirySms(booking: Booking): Promise<void> {
   const to = process.env.SOLAPI_ADMIN_PHONE;
   if (!service || !from || !to) return;
 
-  const text =
-    `[예약 문의] ${booking.guestName}님\n` +
-    `연락처: ${booking.phone}\n` +
-    `객실: ${booking.roomId}\n` +
-    `기간: ${booking.checkIn} ~ ${booking.checkOut}\n` +
-    `인원: ${booking.guests}명`;
+  const lines = [
+    `[예약 문의] ${booking.guestName}님`,
+    `연락처: ${booking.phone}`,
+    booking.email ? `이메일: ${booking.email}` : null,
+    `객실: ${booking.roomId}`,
+    `기간: ${booking.checkIn} ~ ${booking.checkOut}`,
+    `인원: ${booking.guests}명`,
+    booking.extras.length > 0
+      ? `유료 옵션: ${booking.extras.map((e) => e.label).join(', ')} (+${krw(booking.extrasTotal)})`
+      : null,
+    `총 금액: ${krw(booking.totalPrice)}`,
+    booking.notes ? `요청사항: ${booking.notes}` : null,
+  ].filter((line): line is string => line !== null);
+
+  const text = `${lines.join('\n')}\n\n확인 후 계좌번호 안내 부탁드립니다.`;
 
   try {
     await service.send({ to, from, text });

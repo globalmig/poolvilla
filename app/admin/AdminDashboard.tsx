@@ -8,6 +8,12 @@ import {
   FiSearch, FiCalendar, FiUsers, FiDollarSign, FiClock, FiAlertCircle, FiTag,
 } from 'react-icons/fi';
 
+interface BookingExtra {
+  id: string;
+  label: string;
+  price: number;
+}
+
 interface Booking {
   id: string;
   guestName: string;
@@ -20,6 +26,8 @@ interface Booking {
   guests: number;
   status: 'pending' | 'confirmed' | 'cancelled';
   notes: string;
+  extras: BookingExtra[];
+  extrasTotal: number;
   totalPrice: number;
   createdAt: string;
 }
@@ -66,7 +74,6 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [actionError, setActionError] = useState('');
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [expandedNote, setExpandedNote] = useState<string | null>(null);
 
   async function logout() {
@@ -115,7 +122,6 @@ export default function AdminDashboard() {
       const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       setBookings(prev => prev.filter(b => b.id !== id));
-      setConfirmDelete(null);
     } catch {
       setActionError('삭제에 실패했습니다.');
     }
@@ -276,7 +282,6 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-gray-50">
                   {filtered.map(b => {
                     const statusInfo = STATUS_LABEL[b.status];
-                    const isDeleting = confirmDelete === b.id;
                     const noteOpen = expandedNote === b.id;
                     return (
                       <Fragment key={b.id}>
@@ -284,7 +289,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">{fmtCreated(b.createdAt)}</td>
                         <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                           {b.guestName}
-                          {b.notes && (
+                          {(b.notes || b.extras.length > 0) && (
                             <button
                               onClick={() => setExpandedNote(noteOpen ? null : b.id)}
                               className={`ml-1 text-[10px] px-1 rounded border transition-colors ${
@@ -329,38 +334,32 @@ export default function AdminDashboard() {
                           </select>
                         </td>
                         <td className="px-4 py-3">
-                          {isDeleting ? (
-                            <div className="flex items-center gap-1 whitespace-nowrap">
-                              <span className="text-xs text-red-500">삭제?</span>
-                              <button
-                                onClick={() => deleteBooking(b.id)}
-                                className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                              >
-                                확인
-                              </button>
-                              <button
-                                onClick={() => setConfirmDelete(null)}
-                                className="text-xs px-2 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors"
-                              >
-                                취소
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => setConfirmDelete(b.id)}
-                              title="삭제"
-                              className="w-7 h-7 flex items-center justify-center bg-gray-100 text-gray-400 rounded hover:bg-red-100 hover:text-red-500 transition-colors"
-                            >
-                              <FiTrash2 className="text-xs" />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => {
+                              if (window.confirm('삭제하시겠습니까?')) deleteBooking(b.id);
+                            }}
+                            title="삭제"
+                            className="w-7 h-7 flex items-center justify-center bg-gray-100 text-gray-400 rounded hover:bg-red-100 hover:text-red-500 transition-colors"
+                          >
+                            <FiTrash2 className="text-xs" />
+                          </button>
                         </td>
                       </tr>
                       {noteOpen && (
                         <tr className="bg-[#2A8EA2]/5">
-                          <td colSpan={11} className="px-4 py-3 text-sm text-gray-600">
-                            <span className="font-semibold text-gray-700 mr-2">요청사항:</span>
-                            {b.notes}
+                          <td colSpan={11} className="px-4 py-3 text-sm text-gray-600 space-y-1">
+                            {b.notes && (
+                              <div>
+                                <span className="font-semibold text-gray-700 mr-2">요청사항:</span>
+                                {b.notes}
+                              </div>
+                            )}
+                            {b.extras.length > 0 && (
+                              <div>
+                                <span className="font-semibold text-gray-700 mr-2">유료 옵션:</span>
+                                {b.extras.map((e) => e.label).join(', ')} (+{krw(b.extrasTotal)})
+                              </div>
+                            )}
                           </td>
                         </tr>
                       )}

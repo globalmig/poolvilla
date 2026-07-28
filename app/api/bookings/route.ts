@@ -5,7 +5,12 @@ import {
   getBookedRooms, ROOM_ID_TO_TYPE,
   calculateTotal,
 } from '@/lib/bookings';
+import { readPricing } from '@/lib/pricing';
 import { sendInquirySms } from '@/lib/sms';
+
+const NON_PRICING_EXTRAS: Record<string, { label: string; price: number }> = {
+  car: { label: '전기차 충전', price: 0 },
+};
 
 export async function GET() {
   return Response.json(await readBookings());
@@ -13,7 +18,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { guestName, phone, email, roomId, checkIn, checkOut, guests, notes } = body;
+  const { guestName, phone, email, roomId, checkIn, checkOut, guests, notes, extras } = body;
 
   if (!guestName || !phone || !roomId || !checkIn || !checkOut || !guests) {
     return Response.json({ error: '필수 항목을 모두 입력해주세요.' }, { status: 400 });
@@ -40,7 +45,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const totalPrice = await calculateTotal(roomType, checkIn, checkOut);
+  const roomTotal = await calculateTotal(roomType, checkIn, checkOut);
+
+  const pricing = await readPricing();
+  const resolvedExtras: { id: string; label: string; price: number }[] = Array.isArray(extras)
+    ? (extras as string[])
+        .map((id) => {
+          const found = pricing.extras.find((e) => e.id === id) ?? NON_PRICING_EXTRAS[id];
+          return found ? { id, label: found.label, price: found.price } : null;
+        })
+        .filter((e): e is { id: string; label: string; price: number } => e !== null)
+    : [];
+  const extrasTotal = resolvedExtras.reduce((s, e) => s + e.price, 0);
+  const totalPrice = roomTotal + extrasTotal;
 
   const newBooking = {
     id: randomUUID(),
@@ -54,6 +71,8 @@ export async function POST(request: NextRequest) {
     guests: Number(guests),
     status: 'pending' as const,
     notes: (notes || '').trim(),
+    extras: resolvedExtras,
+    extrasTotal,
     totalPrice,
     createdAt: new Date().toISOString(),
   };

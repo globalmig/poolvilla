@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Footer from "../components/Footer";
 import { FiCheck, FiArrowRight } from "react-icons/fi";
-import { readPricing, krw } from "@/lib/pricing";
+import { readPricing, krw, effectiveRoomPrice, type PricingData, type RoomType, type SalePeriod } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -11,17 +11,22 @@ function saleSuffix(sale: { label: string; percent: number; enabled: boolean }):
   return ` (${sale.label}${sale.percent}%세일)`;
 }
 
+function periodCell(pricing: PricingData, type: RoomType, period: SalePeriod): string {
+  const price = effectiveRoomPrice(pricing, type, period);
+  return `${krw(price)}${saleSuffix(pricing.sale[period])}`;
+}
+
 async function buildPricingData() {
   const pricing = await readPricing();
   return [
-    { type: "A타입", room: pricing.rooms.a, highlight: false },
-    { type: "B타입", room: pricing.rooms.b, highlight: true },
-    { type: "C타입", room: pricing.rooms.c, highlight: false },
+    { type: "A타입", roomType: "a" as RoomType, room: pricing.rooms.a, highlight: false },
+    { type: "B타입", roomType: "b" as RoomType, room: pricing.rooms.b, highlight: true },
+    { type: "C타입", roomType: "c" as RoomType, room: pricing.rooms.c, highlight: false },
   ].map((p) => ({
     type: p.type,
-    weekday: `${krw(p.room.weekday)}${saleSuffix(pricing.sale.weekday)}`,
-    weekend: `${krw(p.room.weekend)}${saleSuffix(pricing.sale.weekend)}`,
-    peak: `${krw(p.room.peak)}${saleSuffix(pricing.sale.peak)}`,
+    weekday: periodCell(pricing, p.roomType, "weekday"),
+    weekend: periodCell(pricing, p.roomType, "weekend"),
+    peak: periodCell(pricing, p.roomType, "peak"),
     normal: krw(p.room.normal),
     highlight: p.highlight,
   }));

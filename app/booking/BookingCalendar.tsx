@@ -29,12 +29,20 @@ const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: strin
 };
 
 type RoomPrices = Record<RoomType, { weekday: number; weekend: number; peak: number; normal: number }>;
+type SalePeriod = "weekday" | "weekend" | "peak";
+type SaleInfo = Record<SalePeriod, { label: string; percent: number; enabled: boolean }>;
 
 // Fallback shown before /api/pricing responds — kept in sync with lib/pricing.ts DEFAULT_PRICING
 const DEFAULT_ROOM_PRICES: RoomPrices = {
   a: { weekday: 149000, weekend: 199000, peak: 199000, normal: 570000 },
   b: { weekday: 149000, weekend: 199000, peak: 199000, normal: 570000 },
   c: { weekday: 119000, weekend: 169000, peak: 169000, normal: 528000 },
+};
+
+const DEFAULT_SALE: SaleInfo = {
+  weekday: { label: "오픈기념", percent: 40, enabled: true },
+  weekend: { label: "오픈기념", percent: 30, enabled: true },
+  peak: { label: "오픈기념", percent: 30, enabled: true },
 };
 
 function getRoomType(roomId: string): RoomType {
@@ -142,16 +150,25 @@ function isWeekend(dateStr: string): boolean {
   return d === 5 || d === 6;
 }
 
-function nightlyRate(prices: RoomPrices, roomType: RoomType, dateStr: string): number {
-  const p = prices[roomType];
-  return isPeak(dateStr) ? p.peak : isWeekend(dateStr) ? p.weekend : p.weekday;
+function periodOf(dateStr: string): SalePeriod {
+  return isPeak(dateStr) ? "peak" : isWeekend(dateStr) ? "weekend" : "weekday";
 }
 
-function calcTotal(prices: RoomPrices, roomType: RoomType, checkIn: Date, checkOut: Date): number {
+// Sale period price if that period's sale is enabled, otherwise falls back to the room's normal (정상가) rate.
+function effectiveRate(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, period: SalePeriod): number {
+  const p = prices[roomType];
+  return sale[period].enabled ? p[period] : p.normal;
+}
+
+function nightlyRate(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, dateStr: string): number {
+  return effectiveRate(prices, sale, roomType, periodOf(dateStr));
+}
+
+function calcTotal(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, checkIn: Date, checkOut: Date): number {
   let sum = 0;
   const cur = new Date(checkIn);
   while (cur < checkOut) {
-    sum += nightlyRate(prices, roomType, fmt(cur));
+    sum += nightlyRate(prices, sale, roomType, fmt(cur));
     cur.setDate(cur.getDate() + 1);
   }
   return sum;
@@ -235,10 +252,12 @@ export default function BookingCalendar() {
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
   const [form, setForm] = useState({ guestName: "", phone: "", email: "", guests: "2", notes: "" });
+  const [fieldErrors, setFieldErrors] = useState<{ guestName?: string; phone?: string; email?: string }>({});
   const [selectedExtras, setSelectedExtras] = useState<Set<string>>(new Set());
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [roomPrices, setRoomPrices] = useState<RoomPrices>(DEFAULT_ROOM_PRICES);
+  const [sale, setSale] = useState<SaleInfo>(DEFAULT_SALE);
   const [extras, setExtras] = useState<Extra[]>(DEFAULT_EXTRAS);
 
   useEffect(() => {
@@ -246,6 +265,7 @@ export default function BookingCalendar() {
       .then((res) => res.json())
       .then((data) => {
         setRoomPrices(data.rooms);
+        setSale(data.sale);
         setExtras(buildExtras(data.extras));
       })
       .catch(() => {
@@ -353,14 +373,37 @@ export default function BookingCalendar() {
   const roomInfo = selectedType ? ROOM_INFO[selectedType] : null;
   const maxGuests = roomInfo ? roomInfo.maxGuests : 15;
   const nights = checkIn && checkOut ? Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000) : 0;
-  const roomTotal = checkIn && checkOut && selectedType ? calcTotal(roomPrices, selectedType, checkIn, checkOut) : 0;
+  const roomTotal = checkIn && checkOut && selectedType ? calcTotal(roomPrices, sale, selectedType, checkIn, checkOut) : 0;
   const total = roomTotal + extrasTotal;
 
   // ── Submit ──
 
+  function validateForm(): boolean {
+    const errors: typeof fieldErrors = {};
+
+    if (!form.guestName.trim()) {
+      errors.guestName = "이름을 입력해주세요.";
+    }
+
+    const phoneDigits = form.phone.replace(/[^0-9]/g, "");
+    if (!form.phone.trim()) {
+      errors.phone = "연락처를 입력해주세요.";
+    } else if (phoneDigits.length < 9 || phoneDigits.length > 11) {
+      errors.phone = "올바른 연락처 형식이 아닙니다. (예: 010-1234-5678)";
+    }
+
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      errors.email = "올바른 이메일 형식이 아닙니다. (예: example@email.com)";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!checkIn || !checkOut || !selectedRoom) return;
+    if (!validateForm()) return;
     setSubmitting(true);
     setApiError("");
     try {
@@ -399,6 +442,7 @@ export default function BookingCalendar() {
     setSelectedExtras(new Set());
     setAgreedToTerms(false);
     setApiError("");
+    setFieldErrors({});
   }
 
   const days = calendarDays(year, month);
@@ -539,7 +583,7 @@ export default function BookingCalendar() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
           <h3 className="text-lg font-bold text-gray-900 mb-1">예약자 정보</h3>
 
           <div>
@@ -549,12 +593,21 @@ export default function BookingCalendar() {
             </label>
             <input
               type="text"
-              required
               placeholder="홍길동"
               value={form.guestName}
-              onChange={(e) => setForm((f) => ({ ...f, guestName: e.target.value }))}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#2A8EA2] transition-colors"
+              onChange={(e) => {
+                setForm((f) => ({ ...f, guestName: e.target.value }));
+                setFieldErrors((fe) => ({ ...fe, guestName: undefined }));
+              }}
+              className={`w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition-colors ${
+                fieldErrors.guestName ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-[#2A8EA2]"
+              }`}
             />
+            {fieldErrors.guestName && (
+              <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5">
+                <FiAlertCircle className="shrink-0" /> {fieldErrors.guestName}
+              </p>
+            )}
           </div>
 
           <div>
@@ -564,12 +617,21 @@ export default function BookingCalendar() {
             </label>
             <input
               type="tel"
-              required
               placeholder="010-0000-0000"
               value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#2A8EA2] transition-colors"
+              onChange={(e) => {
+                setForm((f) => ({ ...f, phone: e.target.value }));
+                setFieldErrors((fe) => ({ ...fe, phone: undefined }));
+              }}
+              className={`w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition-colors ${
+                fieldErrors.phone ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-[#2A8EA2]"
+              }`}
             />
+            {fieldErrors.phone && (
+              <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5">
+                <FiAlertCircle className="shrink-0" /> {fieldErrors.phone}
+              </p>
+            )}
           </div>
 
           <div>
@@ -581,9 +643,19 @@ export default function BookingCalendar() {
               type="email"
               placeholder="example@email.com"
               value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#2A8EA2] transition-colors"
+              onChange={(e) => {
+                setForm((f) => ({ ...f, email: e.target.value }));
+                setFieldErrors((fe) => ({ ...fe, email: undefined }));
+              }}
+              className={`w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition-colors ${
+                fieldErrors.email ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-[#2A8EA2]"
+              }`}
             />
+            {fieldErrors.email && (
+              <p className="flex items-center gap-1 text-xs text-red-500 mt-1.5">
+                <FiAlertCircle className="shrink-0" /> {fieldErrors.email}
+              </p>
+            )}
           </div>
 
           <div>
@@ -960,15 +1032,15 @@ export default function BookingCalendar() {
               </div>
               <div className="flex justify-between">
                 <span>평일</span>
-                <span className="text-gray-400">{krw(roomPrices[selectedType].weekday)}</span>
+                <span className="text-gray-400">{krw(effectiveRate(roomPrices, sale, selectedType, "weekday"))}</span>
               </div>
               <div className="flex justify-between">
                 <span>주말</span>
-                <span className="text-gray-400">{krw(roomPrices[selectedType].weekend)}</span>
+                <span className="text-gray-400">{krw(effectiveRate(roomPrices, sale, selectedType, "weekend"))}</span>
               </div>
               <div className="flex justify-between">
                 <span>성수기</span>
-                <span className="text-gray-400">{krw(roomPrices[selectedType].peak)}</span>
+                <span className="text-gray-400">{krw(effectiveRate(roomPrices, sale, selectedType, "peak"))}</span>
               </div>
               <div className="flex justify-between">
                 <span>정상가</span>

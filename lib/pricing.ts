@@ -130,6 +130,12 @@ export function extraPrice(extras: ExtraOption[], id: string): number {
   return extras.find((e) => e.id === id)?.price ?? 0;
 }
 
+// Sale period price if that period's sale is enabled, otherwise falls back to the room's normal (정상가) rate.
+export function effectiveRoomPrice(pricing: PricingData, type: RoomType, period: SalePeriod): number {
+  const room = pricing.rooms[type];
+  return pricing.sale[period].enabled ? room[period] : room.normal;
+}
+
 export function krw(n: number): string {
   return n.toLocaleString('ko-KR') + '원';
 }
