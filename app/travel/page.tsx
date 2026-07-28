@@ -53,12 +53,31 @@ const attractions = [
     desc: "원산도와 안면도를 잇는 아름다운 대교입니다. 서해의 일몰을 배경으로 특별한 드라이브와 인생 사진을 남길 수 있는 명소입니다.",
     images: makeImgs("주변관광지(원산안면대교)", "KakaoTalk_20260702_114417167", 6),
   },
+  {
+    id: "bidoeo-cafe",
+    name: "바이더오 카페",
+    nameEn: "Bidoeo Cafe",
+    category: "카페",
+    distance: "차량 10분",
+    desc: "탁 트인 바다 전망과 함께 여유로운 시간을 보낼 수 있는 카페입니다. 감각적인 인테리어와 커피 한 잔의 여유를 즐기기 좋은 공간입니다.",
+    images: makeImgs("주변관광지(바이더오카페)", "KakaoTalk_20260713_151425396", 4),
+  },
+  {
+    id: "yeongmok-view",
+    name: "영목항 전망대",
+    nameEn: "Yeongmok Port View",
+    category: "관광",
+    distance: "차량 15분",
+    desc: "영목항의 아름다운 바다와 어촌 풍경을 한눈에 담을 수 있는 전망대입니다. 노을이 질 무렵 방문하면 더욱 특별한 풍경을 만날 수 있습니다.",
+    images: makeImgs("주변관광지(영목항전망대)", "KakaoTalk_20260713_151113650", 6),
+  },
 ];
 
 const categoryColor: Record<string, string> = {
   해수욕장: "#4A7FA5",
   레저: "#5B8E6E",
   관광: "#8B6E9E",
+  카페: "#B08968",
 };
 
 export default function TravelPage() {
