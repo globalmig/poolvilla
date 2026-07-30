@@ -145,7 +145,7 @@ export default function TravelPage() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="서해스파풀빌라 위치"
+              title="서해풀빌라 위치"
             />
           </div>
         </div>

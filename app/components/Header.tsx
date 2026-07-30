@@ -46,7 +46,7 @@ export default function Header() {
             transparent ? "text-white" : "text-gray-900"
           }`}
         >
-          서해스파풀빌라
+          서해풀빌라
         </Link>
 
         {/* Desktop nav */}

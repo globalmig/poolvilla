@@ -88,7 +88,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="relative h-120 md:h-135 rounded-3xl overflow-hidden shadow-xl">
-            <ImageSlider images={showcaseImgs.slice(0, 5)} alt="서해스파풀빌라 전경" className="h-full" />
+            <ImageSlider images={showcaseImgs.slice(0, 5)} alt="서해풀빌라 전경" className="h-full" />
           </div>
         </div>
       </section>
@@ -118,7 +118,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="max-w-[1280px] border-gray-200 shadow-xl border rounded-3xl mx-auto my-10">
-          <Image src={"/building_map.png"} alt="객실소개" width={800} height={200} className=" mx-auto mb-6" unoptimized />
+          <Image src={"/building_map.png"} alt="객실소개" width={800} height={200} className="mx-auto mb-6 w-auto h-auto" unoptimized />
         </div>
       </section>
 
@@ -143,7 +143,7 @@ export default function HomePage() {
 
       {/* ── Cinematic banner ── */}
       <section className="relative overflow-hidden mx-4 md:mx-8 rounded-3xl" style={{ height: "60vh" }}>
-        <Image src={SPA[11]} alt="서해스파풀빌라" fill className="object-cover brightness-110 saturate-[1.1]" unoptimized />
+        <Image src={SPA[11]} alt="서해풀빌라" fill className="object-cover brightness-110 saturate-[1.1]" unoptimized />
         <div className="absolute inset-0 bg-black/15" />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-8 [text-shadow:0_2px_16px_rgba(0,0,0,0.6),0_1px_3px_rgba(0,0,0,0.5)]">
           <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold mb-6 text-white/90">Exclusive Spa Pool Villa</span>

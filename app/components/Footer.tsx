@@ -70,7 +70,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-          <p className="text-xs text-white/25">© 2026 서해스파풀빌라. All rights reserved.</p>
+          <p className="text-xs text-white/25">© 2026 서해풀빌라. All rights reserved.</p>
           <a href="https://www.weasley-market.com/homepage-development" target="_blank" rel="noopener noreferrer" className="text-xs text-white/20">
             made by <span className="text-white/50">GlobalMig</span>
           </a>

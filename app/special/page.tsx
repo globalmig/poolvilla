@@ -77,7 +77,7 @@ export default async function SpecialPage() {
         <div className="max-w-xl mx-auto">
           <span className="inline-flex items-center rounded-full bg-[#2A8EA2]/10 px-3.5 py-1.5 text-xs font-semibold text-[#1E7A8D] mb-4">Private Amenities</span>
           <p className="text-base text-gray-500 leading-relaxed">
-            서해스파풀빌라의 모든 객실에는 전용 실내 스위밍 스파와 온열 사우나가 갖춰져 있습니다.
+            서해풀빌라의 모든 객실에는 전용 실내 스위밍 스파와 온열 사우나가 갖춰져 있습니다.
             <br className="hidden md:block" />
             타인의 시선 없이 오롯이 나만의 힐링 시간을 즐기세요.
           </p>

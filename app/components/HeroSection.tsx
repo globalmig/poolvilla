@@ -87,7 +87,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 scale-105">
         {heroImages.map((src, idx) => (
           <div key={idx} className={`absolute inset-0 transition-opacity duration-2000 ${idx === current ? "opacity-100" : "opacity-0"}`}>
-            <Image src={src} alt={`서해스파풀빌라 ${idx + 1}`} fill className="object-cover brightness-110 saturate-[1.15]" priority={idx === 0} unoptimized draggable={false} />
+            <Image src={src} alt={`서해풀빌라 ${idx + 1}`} fill className="object-cover brightness-110 saturate-[1.15]" priority={idx === 0} unoptimized draggable={false} />
           </div>
         ))}
       </div>
@@ -99,7 +99,7 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.65),0_1px_4px_rgba(0,0,0,0.5)]">
         <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur-sm px-5 py-2 text-sm md:text-base font-semibold mb-8 text-white/95">Boryeong Seohae Spa Pool Villa</span>
-        <h1 className="text-[3.2rem] md:text-[5.5rem] lg:text-[6.5rem] font-bold tracking-tight leading-[0.95] mb-6">서해스파풀빌라</h1>
+        <h1 className="text-[3.2rem] md:text-[5.5rem] lg:text-[6.5rem] font-bold tracking-tight leading-[0.95] mb-6">서해풀빌라</h1>
         <p className="text-lg md:text-2xl font-medium mb-10 text-white/90">프라이빗 풀빌라 &nbsp;·&nbsp; 실내 스위밍 스파 &nbsp;·&nbsp; 온열 사우나</p>
         <div className="flex items-center gap-4">
           <Link

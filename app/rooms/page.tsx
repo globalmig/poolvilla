@@ -78,7 +78,7 @@ export default function RoomsPage() {
           </div>
         </div>
         <div className="max-w-[1280px] border-gray-200 shadow-xl border rounded-3xl mx-auto my-10">
-          <Image src={"/building_map.png"} alt="객실소개" width={800} height={200} className=" mx-auto mb-6" unoptimized />
+          <Image src={"/building_map.png"} alt="객실소개" width={800} height={200} className="mx-auto mb-6 w-auto h-auto" unoptimized />
         </div>
       </section>
 
