@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { readBookings, ALL_ROOM_IDS, ROOMS_BY_TYPE, RoomType } from '@/lib/bookings';
+import { readPeakPeriods, isPeakDate } from '@/lib/peakPeriods';
 
 const TOTAL = ALL_ROOM_IDS.length; // 11
 
@@ -15,15 +16,17 @@ export async function GET(request: NextRequest) {
   }
 
   const bookings = (await readBookings()).filter((b) => b.status !== 'cancelled');
-  const result: Record<string, { booked: number; total: number; status: string }> = {};
+  const result: Record<string, { booked: number; total: number; status: string; peak: boolean }> = {};
 
   const cur = new Date(startStr);
   const end = new Date(endStr);
 
   const roomIdsForType = roomType ? ROOMS_BY_TYPE[roomType] : null;
+  const peakPeriods = await readPeakPeriods();
 
   while (cur <= end) {
     const dateStr = cur.toISOString().split('T')[0];
+    const peak = isPeakDate(dateStr, peakPeriods);
 
     if (roomIdsForType) {
       // Room-type mode: unavailable only once every room of this type is booked that night
@@ -36,13 +39,14 @@ export async function GET(request: NextRequest) {
         booked: bookedCount,
         total: totalForType,
         status: bookedCount >= totalForType ? 'unavailable' : 'available',
+        peak,
       };
     } else if (roomId) {
       // Single-room mode: status is just available/unavailable for that room
       const isBooked = bookings.some((b) => {
         return b.roomId === roomId && new Date(b.checkIn) <= cur && cur < new Date(b.checkOut);
       });
-      result[dateStr] = { booked: isBooked ? 1 : 0, total: 1, status: isBooked ? 'unavailable' : 'available' };
+      result[dateStr] = { booked: isBooked ? 1 : 0, total: 1, status: isBooked ? 'unavailable' : 'available', peak };
     } else {
       // Count how many individual rooms are booked on this date
       const bookedCount = bookings.filter((b) => {
@@ -53,7 +57,7 @@ export async function GET(request: NextRequest) {
       if (bookedCount >= TOTAL)     status = 'unavailable';
       else if (bookedCount >= TOTAL - 2) status = 'limited';
 
-      result[dateStr] = { booked: bookedCount, total: TOTAL, status };
+      result[dateStr] = { booked: bookedCount, total: TOTAL, status, peak };
     }
 
     cur.setDate(cur.getDate() + 1);

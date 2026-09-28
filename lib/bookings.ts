@@ -1,5 +1,6 @@
 import { d1 } from './d1';
 import { readPricing, effectiveRoomPrice, type SalePeriod } from './pricing';
+import { readPeakPeriods, isPeakDate } from './peakPeriods';
 
 export type RoomType = 'a' | 'b' | 'c';
 
@@ -141,32 +142,19 @@ export const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size
 
 // ─── Pricing helpers ───────────────────────────────────────────────────────────
 
-const PEAK_MD = new Set([
-  '01-01','01-27','01-28','01-29','01-30',
-  '03-01','05-05','06-06',
-  '07-26','07-27','07-28','07-29','07-30','07-31',
-  '08-01','08-02','08-03','08-04','08-05','08-15',
-  '10-03','10-06','10-07','10-08','10-09',
-  '12-25','12-31',
-]);
-
-export function isPeakDate(dateStr: string): boolean {
-  return PEAK_MD.has(dateStr.slice(5));
-}
-
 export function isWeekend(dateStr: string): boolean {
   const day = new Date(dateStr).getDay();
   return day === 5 || day === 6;
 }
 
 export async function calculateTotal(roomType: RoomType, checkIn: string, checkOut: string): Promise<number> {
-  const pricing = await readPricing();
+  const [pricing, peakPeriods] = await Promise.all([readPricing(), readPeakPeriods()]);
   let total = 0;
   const cur = new Date(checkIn);
   const end = new Date(checkOut);
   while (cur < end) {
     const dateStr = cur.toISOString().split('T')[0];
-    const period: SalePeriod = isPeakDate(dateStr) ? 'peak' : isWeekend(dateStr) ? 'weekend' : 'weekday';
+    const period: SalePeriod = isPeakDate(dateStr, peakPeriods) ? 'peak' : isWeekend(dateStr) ? 'weekend' : 'weekday';
     total += effectiveRoomPrice(pricing, roomType, period);
     cur.setDate(cur.getDate() + 1);
   }

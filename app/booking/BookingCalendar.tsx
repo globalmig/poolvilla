@@ -9,7 +9,7 @@ type RoomType = "a" | "b" | "c";
 type Step = "room" | "calendar" | "form" | "success";
 
 interface AvailMap {
-  [date: string]: { booked: number; total: number; status: string };
+  [date: string]: { booked: number; total: number; status: string; peak: boolean };
 }
 
 // ─── Room definitions (must match lib/bookings.ts) ────────────────────────────
@@ -99,36 +99,6 @@ function buildExtras(extras: PricingExtra[]): Extra[] {
 const KO_DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 const KO_MONTHS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
-const PEAK_MD = new Set([
-  "01-01",
-  "01-27",
-  "01-28",
-  "01-29",
-  "01-30",
-  "03-01",
-  "05-05",
-  "06-06",
-  "07-26",
-  "07-27",
-  "07-28",
-  "07-29",
-  "07-30",
-  "07-31",
-  "08-01",
-  "08-02",
-  "08-03",
-  "08-04",
-  "08-05",
-  "08-15",
-  "10-03",
-  "10-06",
-  "10-07",
-  "10-08",
-  "10-09",
-  "12-25",
-  "12-31",
-]);
-
 function fmt(d: Date): string {
   return d.toISOString().split("T")[0];
 }
@@ -142,16 +112,15 @@ function krw(n: number): string {
   return n.toLocaleString("ko-KR") + "원";
 }
 
-function isPeak(dateStr: string): boolean {
-  return PEAK_MD.has(dateStr.slice(5));
-}
 function isWeekend(dateStr: string): boolean {
   const d = new Date(dateStr).getDay();
   return d === 5 || d === 6;
 }
 
-function periodOf(dateStr: string): SalePeriod {
-  return isPeak(dateStr) ? "peak" : isWeekend(dateStr) ? "weekend" : "weekday";
+// Peak-date status comes from the server (/api/availability), which is the single source of
+// truth for holiday/season logic — this keeps the client from ever disagreeing with pricing.
+function periodOf(dateStr: string, avail: AvailMap): SalePeriod {
+  return avail[dateStr]?.peak ? "peak" : isWeekend(dateStr) ? "weekend" : "weekday";
 }
 
 // Sale period price if that period's sale is enabled, otherwise falls back to the room's normal (정상가) rate.
@@ -160,15 +129,15 @@ function effectiveRate(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, p
   return sale[period].enabled ? p[period] : p.normal;
 }
 
-function nightlyRate(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, dateStr: string): number {
-  return effectiveRate(prices, sale, roomType, periodOf(dateStr));
+function nightlyRate(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, dateStr: string, avail: AvailMap): number {
+  return effectiveRate(prices, sale, roomType, periodOf(dateStr, avail));
 }
 
-function calcTotal(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, checkIn: Date, checkOut: Date): number {
+function calcTotal(prices: RoomPrices, sale: SaleInfo, roomType: RoomType, checkIn: Date, checkOut: Date, avail: AvailMap): number {
   let sum = 0;
   const cur = new Date(checkIn);
   while (cur < checkOut) {
-    sum += nightlyRate(prices, sale, roomType, fmt(cur));
+    sum += nightlyRate(prices, sale, roomType, fmt(cur), avail);
     cur.setDate(cur.getDate() + 1);
   }
   return sum;
@@ -297,7 +266,10 @@ export default function BookingCalendar() {
       const start = new Date(year, month, 1);
       const end = new Date(year, month + 2, 0);
       const res = await fetch(`/api/availability?start=${fmt(start)}&end=${fmt(end)}&roomId=${encodeURIComponent(selectedRoom)}`);
-      setAvail(await res.json());
+      const data = await res.json();
+      // Merge (not replace) so dates already selected as check-in/out keep their peak flag
+      // even after the calendar is navigated away from that month.
+      setAvail((prev) => ({ ...prev, ...data }));
     } catch {
       /* ignore */
     } finally {
@@ -355,6 +327,8 @@ export default function BookingCalendar() {
   }
 
   function chooseRoom(roomId: string) {
+    // Availability is room-specific — drop the previous room's data (avail accumulates across months).
+    setAvail({});
     setSelectedRoom(roomId);
     setCheckIn(null);
     setCheckOut(null);
@@ -373,7 +347,7 @@ export default function BookingCalendar() {
   const roomInfo = selectedType ? ROOM_INFO[selectedType] : null;
   const maxGuests = roomInfo ? roomInfo.maxGuests : 15;
   const nights = checkIn && checkOut ? Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000) : 0;
-  const roomTotal = checkIn && checkOut && selectedType ? calcTotal(roomPrices, sale, selectedType, checkIn, checkOut) : 0;
+  const roomTotal = checkIn && checkOut && selectedType ? calcTotal(roomPrices, sale, selectedType, checkIn, checkOut, avail) : 0;
   const total = roomTotal + extrasTotal;
 
   // ── Submit ──
@@ -437,6 +411,7 @@ export default function BookingCalendar() {
     setCheckIn(null);
     setCheckOut(null);
     setSelectedRoom(null);
+    setAvail({});
     setStep("room");
     setForm({ guestName: "", phone: "", email: "", guests: "2", notes: "" });
     setSelectedExtras(new Set());
@@ -918,7 +893,7 @@ export default function BookingCalendar() {
                 const isCO = checkOut && sameDay(d, checkOut);
                 const isEnd = isCI || isCO;
                 const ranged = inRange(d);
-                const pk = isPeak(fmt(d));
+                const pk = avail[fmt(d)]?.peak ?? false;
                 const wk = isWeekend(fmt(d));
                 const sun = d.getDay() === 0;
                 const sat = d.getDay() === 6;

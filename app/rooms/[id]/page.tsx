@@ -15,8 +15,6 @@ const ROOM_TYPE_IMAGES: Record<string, string[]> = {
   C타입: makeImgs("객실(C-type)", "KakaoTalk_20260702_114144440", 10),
 };
 
-const PROMO_LABEL = "오픈기념 무료 이벤트 진행중";
-
 const standardRoomExtras = {
   extraGuestFee: "1인 30,000원 (성인, 아동, 유아) · 1박 기준 · 영유아 인원수 포함 · 기준 인원 초과 시 펜션 문의",
   pool: {
@@ -199,7 +197,7 @@ export default async function RoomDetailPage(props: PageProps<"/rooms/[id]">) {
                     <ul className="text-sm text-gray-500 leading-relaxed space-y-0.5">
                       <li>스위밍 스파 크기: {room.pool.size}</li>
                       <li>
-                        스위밍스파&온탕스파 이용요금: 1박당 <s className="text-red-500">{heatedFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span> (현장결제)
+                        스위밍스파&온탕스파 이용요금: 1박당 {heatedFee} (현장결제)
                       </li>
                       <li>{room.pool.heatedInfo}</li>
                     </ul>
@@ -210,7 +208,7 @@ export default async function RoomDetailPage(props: PageProps<"/rooms/[id]">) {
                   <div>
                     <p className="text-sm text-gray-800 font-semibold mb-1.5">실내 바베큐</p>
                     <p className="text-sm text-gray-500 leading-relaxed">
-                      {room.bbq.desc} · <s className="text-red-500">{bbqFee}</s> <span className="text-red-600 font-semibold">{PROMO_LABEL}</span>
+                      {room.bbq.desc} · {bbqFee}
                     </p>
                   </div>
                 )}
