@@ -33,7 +33,7 @@ const rooms = [
     slug: "c",
     label: "스탠다드",
     typeLabel: "C타입",
-    size: "37평형",
+    size: "33평형",
     maxGuests: 6,
     units: "201 · 301 · 401",
     cardImage: C_IMGS[0],

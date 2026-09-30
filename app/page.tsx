@@ -43,7 +43,7 @@ const roomTypes = [
   {
     slug: "c",
     name: "스탠다드 C타입",
-    desc: "37평형 · 최대 6인",
+    desc: "33평형 · 최대 6인",
     sub: "더블침대 · 실내 스위밍 스파 · 온열 사우나",
     image: C[0],
   },

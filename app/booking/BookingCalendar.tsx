@@ -25,7 +25,7 @@ const ROOMS_BY_TYPE: Record<RoomType, string[]> = {
 const ROOM_INFO: Record<RoomType, { name: string; typeLabel: string; size: string; maxGuests: number }> = {
   a: { name: "프리미엄", typeLabel: "A타입", size: "37평형", maxGuests: 8 },
   b: { name: "프리미엄", typeLabel: "B타입", size: "37평형", maxGuests: 8 },
-  c: { name: "스탠다드", typeLabel: "C타입", size: "37평형", maxGuests: 6 },
+  c: { name: "스탠다드", typeLabel: "C타입", size: "33평형", maxGuests: 6 },
 };
 
 type RoomPrices = Record<RoomType, { weekday: number; weekend: number; peak: number; normal: number }>;

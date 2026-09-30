@@ -95,7 +95,7 @@ const roomMeta: Record<
   c: {
     name: "스탠다드",
     type: "C타입",
-    size: "34평형",
+    size: "33평형",
     maxGuests: 6,
     beds: "더블침대 1개",
     features: ["실내 스위밍 스파", "온열사우나", "주방", "거실", "화장실 2개"],
