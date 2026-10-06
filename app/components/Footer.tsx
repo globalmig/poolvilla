@@ -29,7 +29,8 @@ export default function Footer() {
             </p>
 
             <p className="text-sm text-white/40 leading-relaxed mb-6">
-              <span className="font-semibold text-white/60">문의</span>
+              <span className="font-semibold text-white/60">문의</span>{" "}
+              <a href="tel:041-932-3923" className="hover:text-white transition-colors">041-932-3923</a>
             </p>
             {/* <div className="flex gap-3">
               <a href="#" aria-label="Instagram" className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 text-white/60 hover:bg-white hover:text-gray-900 transition-colors">

@@ -45,7 +45,7 @@ export default function BookingPage() {
                 <br />
                 주말 · 공휴일 09:00 ~ 22:00
               </p>
-              <a href="tel:010-0000-0000" className="btn-pop inline-block rounded-full px-6 py-2.5 bg-[#2A8EA2] text-white text-sm font-semibold shadow-sm hover:shadow-lg transition-shadow">
+              <a href="tel:041-932-3923" className="btn-pop inline-block rounded-full px-6 py-2.5 bg-[#2A8EA2] text-white text-sm font-semibold shadow-sm hover:shadow-lg transition-shadow">
                 전화하기
               </a>
             </div>
